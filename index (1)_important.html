@@ -202,21 +202,27 @@ import { getAuth, signInWithEmailAndPassword, signOut,
 // ════════════════════════════════════════════════
 //   ✅ FIREBASE CONFIG — AAPKA KHUD KA CONFIG
 // ════════════════════════════════════════════════
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:            "AIzaSyCCpPisj0rdWJbHYv3SsuFYEGAL1R2QIms",
-  authDomain:        "school-management-1000.firebaseapp.com",
-  projectId:         "school-management-1000",
-  storageBucket:     "school-management-1000.firebasestorage.app",
-  messagingSenderId: "765395236217",
-  appId:             "1:765395236217:web:fc0f2d3f5d2e785ec1aba8",
-  measurementId:     "G-FEQ0QR4H3B"
+  apiKey: "AIzaSyCaFEIJbHpfOhldbeehsWdMGk35hFWN1G4",
+  authDomain: "school-operation-manage.firebaseapp.com",
+  projectId: "school-operation-manage",
+  storageBucket: "school-operation-manage.firebasestorage.app",
+  messagingSenderId: "122531044879",
+  appId: "1:122531044879:web:c0f19d336a36c6bab60d7a",
+  measurementId: "G-CMR8XBM1NK"
 };
-// ════════════════════════════════════════════════
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-const auth  = getAuth(fbApp);
-
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 // ── GLOBALS ──
 let CU=null, ROLE=null, UDATA=null;
 let INST = 'School Management System';
