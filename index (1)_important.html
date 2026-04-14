@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a237e;--primary-l:#3949ab;--primary-d:#0d1642;--accent:#f9a825;--danger:#c62828;--success:#2e7d32;--warn:#e65100;--bg:#eef0f5;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sw:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans','Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,var(--primary-d),var(--primary) 55%,var(--primary-l));display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .ico{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),var(--primary-l));border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--primary);line-height:1.3}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px}
+.fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18)}.btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-l)}
+.btn-danger{background:var(--danger);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--primary-d);font-weight:700}
+.btn-full{width:100%;justify-content:center}.btn-sm{padding:7px 14px;font-size:12px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--primary-d);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;display:flex;flex-direction:column}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:14px;font-weight:800;color:var(--accent);line-height:1.3}
+.sb-role{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sb-nav{padding:12px 0;flex:1}
+.nav-sec{padding:10px 18px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{border-right:3px solid var(--accent);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar h2{font-size:18px;font-weight:800;color:var(--primary)}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary)}
+.page{padding:24px}
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:800;color:var(--primary)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid transparent}
+.sc.blue{border-color:var(--primary)}.sc.gold{border-color:var(--accent)}.sc.green{border-color:var(--success)}.sc.red{border-color:var(--danger)}.sc.ora{border-color:var(--warn)}
+.sc-ico{font-size:26px;margin-bottom:6px}.sc-val{font-size:28px;font-weight:900;color:var(--primary)}.sc-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle}
+tbody tr:hover{background:#f6f8ff}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-blue{background:#e8eaf6;color:var(--primary)}.b-green{background:#e8f5e9;color:var(--success)}
+.b-red{background:#ffebee;color:var(--danger)}.b-ora{background:#fff3e0;color:var(--warn)}.b-gold{background:#fff8e1;color:#c17900}
+.av{border-radius:50%;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0}
+.search-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary)}
+.search-bar input{flex:1;min-width:180px}
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fw{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+.fee-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.fbox{text-align:center;padding:14px 10px;border-radius:12px}
+.fbox.due{background:#fff3e0}.fbox.paid{background:#e8f5e9}.fbox.adv{background:#e8eaf6}.fbox.bal{background:#ffebee}
+.fbox .fa{font-size:17px;font-weight:900}
+.fbox.due .fa{color:var(--warn)}.fbox.paid .fa{color:var(--success)}.fbox.adv .fa{color:var(--primary)}.fbox.bal .fa{color:var(--danger)}
+.fbox .fl{font-size:11px;color:var(--muted);margin-top:2px}
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:14px;font-size:13.5px}
+.a-danger{background:#ffebee;color:var(--danger);border-left:4px solid var(--danger)}
+.a-success{background:#e8f5e9;color:var(--success);border-left:4px solid var(--success)}
+.a-info{background:#e8eaf6;color:var(--primary);border-left:4px solid var(--primary)}
+.info-row{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.ii .il{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ii .iv{font-size:14px;font-weight:600;margin-top:2px}
+.stu-av{width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;flex-shrink:0}
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cls-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;transition:all .2s;border:2px solid transparent}
+.cls-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.cls-card .cn{font-weight:800;font-size:13px;color:var(--primary)}.cls-card .cc{font-size:26px;font-weight:900;margin:4px 0}.cls-card .cl{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}.empty p{font-size:15px}
+.spin{display:inline-block;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sbOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.t-ok{background:var(--success)}.toast.t-info{background:var(--primary)}.toast.t-err{background:var(--danger)}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  #sbOverlay.show{display:block}.main{margin-left:0}.hamburger{display:block}
+  .page{padding:14px}.fgrid{grid-template-columns:1fr}.fgrid .fw{grid-column:1}
+  .fee-sum{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.modal{padding:18px}
+}
+@media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin-left:0!important}.page{padding:0!important}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN PAGE ════════════════ -->
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="ico">🏫</div>
+      <h1 id="loginName">School Management System</h1>
+      <p>Powered by Firebase</p>
+    </div>
+    <div id="loginErr" class="alert a-danger" style="display:none"></div>
+    <div class="fg">
+      <label>Email / ईमेल</label>
+      <input type="email" id="lEmail" placeholder="director@school.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label>Password / पासवर्ड</label>
+      <input type="password" id="lPass" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">🔐 Login</button>
+  </div>
+</div>
+
+<!-- ════════════════ MAIN APP ════════════════ -->
+<div id="app" style="display:none">
+  <div id="sbOverlay" onclick="closeSb()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-brand" id="sbName">🏫 School</div>
+      <div class="sb-role" id="sbRole">Director</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">मुख्य / Main</div>
+      <div class="nav-item active" onclick="go('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-sec">छात्र / Students</div>
+      <div class="nav-item" onclick="go('students')"><span class="ni">🎓</span> All Students</div>
+      <div class="nav-item" onclick="go('hostel')"><span class="ni">🏠</span> Hostel Students</div>
+      <div class="nav-sec" id="ns-teacher">शिक्षक / Teachers</div>
+      <div class="nav-item" id="n-teachers" onclick="go('teachers')"><span class="ni">👩‍🏫</span> All Teachers</div>
+      <div class="nav-sec">रिपोर्ट / Reports</div>
+      <div class="nav-item" onclick="go('reports')"><span class="ni">📋</span> Reports</div>
+      <div class="nav-sec" id="ns-settings">सेटिंग / Settings</div>
+      <div class="nav-item" id="n-settings" onclick="go('settings')"><span class="ni">⚙️</span> Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="nav-item" onclick="doLogout()" style="border-radius:10px">
+        <span class="ni">🚪</span> Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="hamburger" onclick="toggleSb()">☰</button>
+        <h2 id="pgTitle">Dashboard</h2>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" id="tbUser"></span>
+    </div>
+    <div class="page" id="pageContent">
+      <div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modalWrap" class="modal-wrap" style="display:none"
+  onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ════════════════ FIREBASE + APP LOGIC ════════════════ -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs,
+         deleteDoc, query, where, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut,
+         onAuthStateChanged, updatePassword,
+         createUserWithEmailAndPassword }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ════════════════════════════════════════════════
+//   ✅ FIREBASE CONFIG — AAPKA KHUD KA CONFIG
+// ════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "AIzaSyCCpPisj0rdWJbHYv3SsuFYEGAL1R2QIms",
+  authDomain:        "school-management-1000.firebaseapp.com",
+  projectId:         "school-management-1000",
+  storageBucket:     "school-management-1000.firebasestorage.app",
+  messagingSenderId: "765395236217",
+  appId:             "1:765395236217:web:fc0f2d3f5d2e785ec1aba8",
+  measurementId:     "G-FEQ0QR4H3B"
+};
+// ════════════════════════════════════════════════
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+const auth  = getAuth(fbApp);
+
+// ── GLOBALS ──
+let CU=null, ROLE=null, UDATA=null;
+let INST = 'School Management System';
+const MN = ['January','February','March','April','May','June',
+            'July','August','September','October','November','December'];
+
+// ── FIRESTORE HELPERS ──
+const col_ = c       => collection(db, c);
+const ref_ = (c, id) => doc(db, c, id);
+
+async function getAll(c, ...cons) {
+  const q    = cons.length ? query(col_(c), ...cons) : col_(c);
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+async function getOne(c, id) {
+  const snap = await getDoc(ref_(c, id));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+async function save_(c, id, data) {
+  await setDoc(ref_(c, id), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+}
+async function del_(c, id) { await deleteDoc(ref_(c, id)); }
+
+// ── UI HELPERS ──
+const MY    = (m, y)  => MN[m-1] + ' ' + y;
+const clsL  = (c, cc) => c === 'Other' ? (cc || 'Other') : ('Class ' + c);
+const ini   = n => (n||'?').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || '??';
+const avH   = (n,s=38,f=14) =>
+  `<div class="av" style="width:${s}px;height:${s}px;font-size:${f}px">${ini(n)}</div>`;
+const cur   = n => '₹' + Number(n||0).toLocaleString('en-IN');
+const isDir = () => ROLE === 'director';
+const spin_ = () => `<div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div>`;
+const err_  = m => `<div class="alert a-danger">❌ ${m}</div>`;
+const uid_  = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+const setH  = (id, h) => { const e = document.getElementById(id); if(e) e.innerHTML = h; };
+
+function toast(msg, type='ok') {
+  const t = document.createElement('div');
+  t.className = `toast t-${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+}
+
+// ════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    CU    = user;
+    UDATA = await getOne('users', user.uid);
+    if (!UDATA) { await signOut(auth); showLogin(); return; }
+    ROLE  = UDATA.role;
+    const st = await getOne('settings', 'main');
+    if (st?.institute_name) INST = st.institute_name;
+    showApp();
+  } else {
+    showLogin();
+  }
+});
+
+function showLogin() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').style.display       = 'none';
+  document.getElementById('loginName').textContent   = INST;
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display       = 'flex';
+  document.getElementById('sbName').textContent      = '🏫 ' + INST;
+  document.getElementById('loginName').textContent   = INST;
+  document.getElementById('sbRole').textContent      =
+    isDir() ? '👑 Director' : '👩‍🏫 ' + (UDATA?.name || 'Teacher');
+  document.getElementById('tbUser').textContent      = UDATA?.name || CU.email;
+
+  ['n-teachers','ns-teacher','n-settings','ns-settings'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isDir() ? '' : 'none';
+  });
+  go('dashboard');
+}
+
+window.doLogin = async function() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass  = document.getElementById('lPass').value;
+  const er    = document.getElementById('loginErr');
+  const btn   = document.getElementById('loginBtn');
+  er.style.display = 'none';
+  if (!email || !pass) {
+    er.style.display = 'block';
+    er.textContent   = '❌ Email aur password daalein'; return;
+  }
+  btn.disabled = true; btn.textContent = '⏳ Logging in...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    er.style.display = 'block';
+    er.textContent   = '❌ Email ya password galat hai!';
+    btn.disabled = false; btn.textContent = '🔐 Login';
+  }
+};
+
+window.doLogout = async () => { await signOut(auth); };
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+let PAGE = 'dashboard', PARAMS = {};
+const TITLES = {
+  dashboard:'Dashboard', students:'Students / छात्र',
+  hostel:'Hostel Students', teachers:'Teachers / शिक्षक',
+  reports:'Reports / रिपोर्ट', settings:'Settings / सेटिंग',
+  studentDetail:'Student Detail', teacherDetail:'Teacher Detail'
+};
+
+window.go = async function(page, params = {}) {
+  closeSb();
+  PAGE = page; PARAMS = params;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[onclick*="'${page}'"]`);
+  if (nav) nav.classList.add('active');
+  document.getElementById('pgTitle').textContent = TITLES[page] || page;
+  setH('pageContent', spin_());
+  try {
+    let html = '';
+    if      (page === 'dashboard')     html = await pgDash();
+    else if (page === 'students')      html = await pgStudents();
+    else if (page === 'hostel')        html = await pgHostel();
+    else if (page === 'teachers')      html = await pgTeachers();
+    else if (page === 'reports')       html = await pgReports();
+    else if (page === 'settings')      html = await pgSettings();
+    else if (page === 'studentDetail') html = await pgStudentDetail(params.id);
+    else if (page === 'teacherDetail') html = await pgTeacherDetail(params.id);
+    setH('pageContent', html);
+  } catch(e) {
+    setH('pageContent', err_(e.message || 'Page load error'));
+    console.error(e);
+  }
+  window.scrollTo(0, 0);
+};
+
+window.toggleSb = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('show');
+};
+window.closeSb = () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('show');
+};
+window.openModal = (t, b) => {
+  document.getElementById('modalTitle').textContent = t;
+  setH('modalBody', b);
+  document.getElementById('modalWrap').style.display = 'flex';
+};
+window.closeModal = () => {
+  document.getElementById('modalWrap').style.display = 'none';
+};
+
+// ════════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════════
+async function pgDash() {
+  const [students, teachers, fees] = await Promise.all([
+    getAll('students'), getAll('teachers'), getAll('fees')
+  ]);
+  const now = new Date(), cm = now.getMonth()+1, cy = now.getFullYear();
+  const hostel   = students.filter(s => s.type === 'hostel').length;
+  const monthFee = fees
+    .filter(f => f.month == cm && f.year == cy)
+    .reduce((a, f) => a + Number(f.paidAmount||0), 0);
+
+  // Pending fee students
+  const pending = [];
+  students.forEach(s => {
+    const sf  = fees.filter(f => f.studentId === s.id);
+    const tp  = sf.reduce((a, f) => a + Number(f.paidAmount||0), 0);
+    const mc  = Math.max(1, (cy - s.startYear)*12 + (cm - s.startMonth) + 1);
+    const bal = mc * Number(s.monthlyFee||0) - tp;
+    if (bal > 0) pending.push({ ...s, balance: bal });
+  });
+
+  // Class dist
+  const cd = {};
+  students.forEach(s => {
+    const k = clsL(s.class, s.customClass);
+    cd[k] = (cd[k] || 0) + 1;
+  });
+
+  return `
+  <div class="stats">
+    <div class="sc blue"><div class="sc-ico">🎓</div><div class="sc-val">${students.length}</div><div class="sc-lbl">Total Students</div></div>
+    <div class="sc gold"><div class="sc-ico">🏠</div><div class="sc-val">${hostel}</div><div class="sc-lbl">Hostel</div></div>
+    <div class="sc green"><div class="sc-ico">🚶</div><div class="sc-val">${students.length - hostel}</div><div class="sc-lbl">Day Scholar</div></div>
+    <div class="sc ora"><div class="sc-ico">👩‍🏫</div><div class="sc-val">${teachers.length}</div><div class="sc-lbl">Teachers</div></div>
+    <div class="sc green"><div class="sc-ico">💰</div>
+      <div class="sc-val" style="font-size:18px">${cur(monthFee)}</div>
+      <div class="sc-lbl">This Month Collection</div></div>
+    <div class="sc red"><div class="sc-ico">⚠️</div><div class="sc-val">${pending.length}</div><div class="sc-lbl">Fee Pending</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📚 Class-wise Students</div></div>
+    ${!Object.keys(cd).length
+      ? `<div class="empty"><div class="ei">📚</div><p>कोई छात्र नहीं। Add Student करें।</p></div>`
+      : `<div class="cls-grid">${Object.entries(cd).map(([c,n]) =>
+          `<div class="cls-card" onclick="go('students')">
+            <div class="cn">${c}</div><div class="cc">${n}</div><div class="cl">Students</div>
+          </div>`).join('')}</div>`}
+  </div>
+
+  ${pending.length ? `
+  <div class="card">
+    <div class="card-hd"><div class="card-title">⚠️ Fee Pending Students</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Student</th><th>Class</th><th>Balance</th><th></th></tr></thead>
+      <tbody>${pending.map(s => `<tr>
+        <td><div style="display:flex;align-items:center;gap:9px">
+          ${avH(s.name)}<strong>${s.name}</strong></div></td>
+        <td><span class="badge b-blue">${clsL(s.class, s.customClass)}</span></td>
+        <td><span class="badge b-red">${cur(s.balance)}</span></td>
+        <td><button class="btn btn-sm btn-primary"
+          onclick="go('studentDetail',{id:'${s.id}'})">View</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>` : ''}`;
+}
+
+// ════════════════════════════════════════════════
+//  STUDENTS
+// ════════════════════════════════════════════════
+async function pgStudents() {
+  const sts = await getAll('students');
+  window.__sts = sts;
+  return `
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px" class="no-print">
+    ${isDir() ? `<button class="btn btn-primary" onclick="addStuModal()">➕ Add Student</button>` : ''}
+  </div>
+  <div class="search-bar">
+    <input type="text" id="sq" placeholder="🔍 Name / Mobile..." oninput="filterStu()">
+    <select id="fcls" onchange="filterStu()">
+      <option value="">All Classes</option>
+      ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i =>
+        `<option value="Class ${i}">Class ${i}</option>`).join('')}
+      <option value="Other">Other</option>
+    </select>
+    <select id="ftype" onchange="filterStu()">
+      <option value="">All Types</option>
+      <option value="hostel">🏠 Hostel</option>
+      <option value="dayscholar">🚶 Day Scholar</option>
+    </select>
+  </div>
+  <div class="card"><div id="stTable">${stuTable(sts)}</div></div>`;
+}
+
+window.filterStu = function() {
+  const q   = (document.getElementById('sq')?.value||'').toLowerCase();
+  const cls = document.getElementById('fcls')?.value || '';
+  const typ = document.getElementById('ftype')?.value || '';
+  let r = window.__sts || [];
+  if (q)   r = r.filter(s => s.name.toLowerCase().includes(q)||(s.mobile||'').includes(q));
+  if (cls) r = r.filter(s => clsL(s.class, s.customClass) === cls);
+  if (typ) r = r.filter(s => s.type === typ);
+  setH('stTable', stuTable(r));
+};
+
+function stuTable(sts) {
+  if (!sts.length)
+    return `<div class="empty"><div class="ei">🎓</div><p>कोई छात्र नहीं मिला</p></div>`;
+  return `<div class="tw"><table>
+    <thead><tr><th>#</th><th>Name / नाम</th><th>Class</th><th>Mobile</th><th>Type</th><th>Action</th></tr></thead>
+    <tbody>${sts.map((s,i) => `<tr>
+      <td>${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        ${s.photo
+          ? `<img src="${s.photo}" style="width:38px;height:38px;border-radius:50%;object-fit:cover">`
+          : avH(s.name)}
+        <div><div style="font-weight:700">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted)">
+          ${[s.village,s.city].filter(Boolean).join(', ')||''}</div></div>
+      </div></td>
+      <td><span class="badge b-blue">${clsL(s.class, s.customClass)}</span></td>
+      <td>${s.mobile||'-'}</td>
+      <td><span class="badge ${s.type==='hostel'?'b-ora':'b-green'}">
+        ${s.type==='hostel'?'🏠 Hostel':'🚶 Day Scholar'}</span></td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-primary"
+          onclick="go('studentDetail',{id:'${s.id}'})">👁 View</button>
+        ${isDir() ? `
+        <button class="btn btn-sm btn-outline" onclick="editStuModal('${s.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="delStu('${s.id}')">🗑</button>` : ''}
+      </div></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function stuForm(s = {}) {
+  const now = new Date();
+  const co  = [1,2,3,4,5,6,7,8,9,10,11,12,'Other'].map(c =>
+    `<option value="${c}" ${s.class==c?'selected':''}>${c==='Other'?'Other':'Class '+c}</option>`
+  ).join('');
+  const mo  = MN.map((m,i) =>
+    `<option value="${i+1}" ${s.startMonth==i+1?'selected':
+      (!s.startMonth&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return `
+  <div class="fgrid">
+    <div class="fg fw"><label>Full Name / पूरा नाम ★</label>
+      <input id="sn" value="${s.name||''}" placeholder="e.g. Imtiyaz Surjapuri"></div>
+    <div class="fg"><label>Class ★</label>
+      <select id="sc"
+        onchange="document.getElementById('ccg').style.display=this.value==='Other'?'block':'none'">
+        <option value="">-- Select --</option>${co}</select></div>
+    <div class="fg" id="ccg" style="${s.class==='Other'?'':'display:none'}">
+      <label>Custom Class Name</label>
+      <input id="scc" value="${s.customClass||''}" placeholder="e.g. Drawing Class"></div>
+    <div class="fg"><label>Monthly Fee ₹ ★</label>
+      <input type="number" id="smf" value="${s.monthlyFee||''}" placeholder="1500"></div>
+    <div class="fg"><label>Father's Name / पिता</label>
+      <input id="sfa" value="${s.fatherName||''}" placeholder="Father's name"></div>
+    <div class="fg"><label>Mother's Name / माता</label>
+      <input id="smo" value="${s.motherName||''}" placeholder="Mother's name"></div>
+    <div class="fg"><label>Mobile Number ★</label>
+      <input type="tel" id="smob" value="${s.mobile||''}" placeholder="10-digit mobile"></div>
+    <div class="fg"><label>Village / गाँव</label>
+      <input id="svil" value="${s.village||''}" placeholder="Village"></div>
+    <div class="fg"><label>City / शहर</label>
+      <input id="scit" value="${s.city||''}" placeholder="City"></div>
+    <div class="fg"><label>Start Month ★</label><select id="smm">${mo}</select></div>
+    <div class="fg"><label>Start Year ★</label>
+      <input type="number" id="smy" value="${s.startYear||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg fw"><label>Student Type ★</label>
+      <select id="styp">
+        <option value="dayscholar" ${s.type==='dayscholar'?'selected':''}>🚶 Day Scholar</option>
+        <option value="hostel" ${s.type==='hostel'?'selected':''}>🏠 Hostel</option>
+      </select></div>
+    <div class="fg fw"><label>Photo (Optional — max 200KB)</label>
+      <input type="file" id="sph" accept="image/*" onchange="prvPh(this,'sphp')">
+      <div id="sphp" style="margin-top:8px">
+        ${s.photo?`<img src="${s.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover">`:''}</div>
+    </div>
+  </div>
+  <div id="sErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="stuBtn" onclick="saveStu('${s.id||''}')">💾 Save</button>
+  </div>`;
+}
+
+window.addStuModal  = () => openModal('➕ Add New Student', stuForm());
+window.editStuModal = async function(id) {
+  openModal('✏️ Edit Student', spin_());
+  const s = await getOne('students', id);
+  setH('modalBody', s ? stuForm(s) : err_('Not found'));
+};
+window.prvPh = function(inp, pid) {
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 250000) {
+    alert('Photo 200KB se chhoti honi chahiye!'); inp.value = ''; return;
+  }
+  const r = new FileReader();
+  r.onload = e => setH(pid,
+    `<img src="${e.target.result}" style="width:60px;height:60px;border-radius:50%;object-fit:cover">`);
+  r.readAsDataURL(f);
+};
+window.saveStu = async function(eid) {
+  const name = document.getElementById('sn').value.trim();
+  const cls  = document.getElementById('sc').value;
+  const mob  = document.getElementById('smob').value.trim();
+  const smm  = document.getElementById('smm').value;
+  const smy  = document.getElementById('smy').value;
+  const mf   = document.getElementById('smf').value;
+  const er   = document.getElementById('sErr');
+  if (!name||!cls||!mob||!smm||!smy||!mf) {
+    er.style.display='block'; er.textContent='❌ सभी ★ fields भरें!'; return; }
+  if (!/^\d{10}$/.test(mob)) {
+    er.style.display='block'; er.textContent='❌ Mobile 10 digits होना चाहिए!'; return; }
+  let photo = '';
+  const pi = document.querySelector('#sphp img'); if (pi) photo = pi.src;
+  const btn = document.getElementById('stuBtn'); btn.disabled=true; btn.textContent='💾 Saving...';
+  try {
+    const id = eid || uid_();
+    await save_('students', id, {
+      name, class: cls,
+      customClass:  document.getElementById('scc')?.value || '',
+      monthlyFee:   Number(mf),
+      fatherName:   document.getElementById('sfa').value.trim(),
+      motherName:   document.getElementById('smo').value.trim(),
+      mobile: mob,
+      village:      document.getElementById('svil').value.trim(),
+      city:         document.getElementById('scit').value.trim(),
+      startMonth:   Number(smm), startYear: Number(smy),
+      type:         document.getElementById('styp').value,
+      ...(photo ? { photo } : {})
+    });
+    closeModal(); toast('✅ Student saved!'); go('students');
+  } catch(e) {
+    er.style.display='block'; er.textContent='❌ '+e.message;
+    btn.disabled=false; btn.textContent='💾 Save';
+  }
+};
+window.delStu = async function(id) {
+  if (!confirm('Delete this student? (All fee records will also be deleted)')) return;
+  try {
+    await del_('students', id);
+    const fes = await getAll('fees', where('studentId','==',id));
+    await Promise.all(fes.map(f => del_('fees', f.id)));
+    toast('Deleted!','info'); go('students');
+  } catch(e) { toast('Error: '+e.message,'err'); }
+};
+
+// ════════════════════════════════════════════════
+//  STUDENT DETAIL
+// ════════════════════════════════════════════════
+async function pgStudentDetail(id) {
+  const [s, fes] = await Promise.all([
+    getOne('students', id),
+    getAll('fees', where('studentId','==',id))
+  ]);
+  if (!s) return err_('Student not found');
+  const now=new Date(), cm=now.getMonth()+1, cy=now.getFullYear();
+  const mc  = Math.max(1, (cy-s.startYear)*12 + (cm-s.startMonth) + 1);
+  const td  = mc * Number(s.monthlyFee||0);
+  const tp  = fes.reduce((a,f) => a+Number(f.paidAmount||0), 0);
+  const bal = td - tp;
+  const adv = Math.max(0, -bal);
+  const sorted = fes.sort((a,b) => a.year*100+a.month - (b.year*100+b.month));
+
+  return `
+  <div style="margin-bottom:14px" class="no-print">
+    <button class="btn btn-outline btn-sm" onclick="go('students')">← Back</button>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+      <div>${s.photo
+        ? `<img src="${s.photo}" style="width:88px;height:88px;border-radius:14px;object-fit:cover">`
+        : `<div class="stu-av">${ini(s.name)}</div>`}</div>
+      <div style="flex:1">
+        <h2 style="font-size:20px;font-weight:900;color:var(--primary)">${s.name}</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px">
+          <span class="badge b-blue">${clsL(s.class,s.customClass)}</span>
+          <span class="badge ${s.type==='hostel'?'b-ora':'b-green'}">
+            ${s.type==='hostel'?'🏠 Hostel':'🚶 Day Scholar'}</span>
+          <span class="badge b-gold">Since ${MY(s.startMonth,s.startYear)}</span>
+        </div>
+        <div class="info-row">
+          ${[['Father',s.fatherName],['Mother',s.motherName],['Mobile',s.mobile],
+             ['Village',s.village],['City',s.city],['Monthly Fee',cur(s.monthlyFee)]]
+            .map(([l,v]) =>
+              `<div class="ii"><div class="il">${l}</div><div class="iv">${v||'-'}</div></div>`)
+            .join('')}
+        </div>
+      </div>
+      ${isDir()
+        ? `<button class="btn btn-sm btn-outline no-print"
+            onclick="editStuModal('${s.id}')">✏️ Edit</button>` : ''}
+    </div>
+  </div>
+
+  <div class="fee-sum">
+    <div class="fbox due"><div class="fa">${cur(td)}</div><div class="fl">Total Due</div></div>
+    <div class="fbox paid"><div class="fa">${cur(tp)}</div><div class="fl">Total Paid</div></div>
+    <div class="fbox adv"><div class="fa">${cur(adv)}</div><div class="fl">Advance</div></div>
+    <div class="fbox bal"><div class="fa">${cur(Math.max(0,bal))}</div><div class="fl">Balance</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">💰 Fee Ledger / फीस बही</div>
+      <div style="display:flex;gap:8px" class="no-print">
+        ${isDir()
+          ? `<button class="btn btn-sm btn-primary"
+              onclick="addFeeModal('${s.id}','${s.monthlyFee||0}')">➕ Add Payment</button>` : ''}
+        <button class="btn btn-sm btn-outline"
+          onclick="printReceipt('${s.id}')">🖨️ Print</button>
+      </div>
+    </div>
+    ${!sorted.length
+      ? `<div class="empty"><div class="ei">💰</div><p>कोई payment record नहीं</p></div>`
+      : `<div class="tw"><table>
+          <thead><tr><th>Month</th><th>Due</th><th>Paid</th><th>Date</th><th>Mode</th>
+            <th>Remarks</th>${isDir()?'<th></th>':''}</tr></thead>
+          <tbody>${sorted.map(f => `<tr>
+            <td><strong>${MY(f.month,f.year)}</strong></td>
+            <td>${cur(f.dueAmount)}</td>
+            <td><span class="badge ${Number(f.paidAmount)>=Number(f.dueAmount)?'b-green':'b-red'}">
+              ${cur(f.paidAmount)}</span></td>
+            <td>${f.payDate||'-'}</td><td>${f.payMode||'-'}</td><td>${f.remarks||'-'}</td>
+            ${isDir() ? `<td><div style="display:flex;gap:4px">
+              <button class="btn btn-sm btn-outline"
+                onclick="editFeeModal('${f.id}','${s.id}','${s.monthlyFee||0}')">✏️</button>
+              <button class="btn btn-sm btn-danger"
+                onclick="delFee('${f.id}','${s.id}')">🗑</button>
+            </div></td>` : ''}
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+//  FEES
+// ════════════════════════════════════════════════
+function feeForm(sid, df, f = {}) {
+  const now=new Date(), nm=now.getMonth()+1, ny=now.getFullYear();
+  const mo = MN.map((m,i) =>
+    `<option value="${i+1}" ${f.month==i+1?'selected':(!f.month&&nm==i+1?'selected':'')}>${m}</option>`
+  ).join('');
+  return `
+  <div class="fgrid">
+    <div class="fg"><label>Month ★</label><select id="fm">${mo}</select></div>
+    <div class="fg"><label>Year ★</label>
+      <input type="number" id="fy" value="${f.year||ny}" min="2020" max="2035"></div>
+    <div class="fg"><label>Due Amount ₹ ★</label>
+      <input type="number" id="fd" value="${f.dueAmount||df||''}" placeholder="Monthly due"></div>
+    <div class="fg"><label>Paid Amount ₹ ★</label>
+      <input type="number" id="fp" value="${f.paidAmount||''}" placeholder="Amount paid"></div>
+    <div class="fg"><label>Payment Date</label>
+      <input type="date" id="fdt" value="${f.payDate||now.toISOString().split('T')[0]}"></div>
+    <div class="fg"><label>Mode</label>
+      <select id="fpm">
+        <option value="Cash"   ${f.payMode==='Cash'?'selected':''}>💵 Cash</option>
+        <option value="Online" ${f.payMode==='Online'?'selected':''}>📱 Online</option>
+        <option value="Cheque" ${f.payMode==='Cheque'?'selected':''}>🏦 Cheque</option>
+      </select></div>
+    <div class="fg fw"><label>Remarks (Optional)</label>
+      <input id="fr" value="${f.remarks||''}" placeholder="Any note..."></div>
+  </div>
+  <div id="fErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="feeBtn"
+      onclick="saveFee('${f.id||''}','${sid}')">💾 Save Payment</button>
+  </div>`;
+}
+
+window.addFeeModal  = (sid, df) => openModal('➕ Add Fee Payment', feeForm(sid, df));
+window.editFeeModal = async function(fid, sid, df) {
+  openModal('✏️ Edit Fee', spin_());
+  const f = await getOne('fees', fid);
+  setH('modalBody', f ? feeForm(sid, df, f) : err_('Not found'));
+};
+window.saveFee = async function(eid, sid) {
+  const m=document.getElementById('fm').value, y=document.getElementById('fy').value;
+  const d=document.getElementById('fd').value, p=document.getElementById('fp').value;
+  const er=document.getElementById('fErr');
+  if (!m||!y||!d||!p) { er.style.display='block'; er.textContent='❌ सभी ★ fields भरें!'; return; }
+  const btn=document.getElementById('feeBtn'); btn.disabled=true; btn.textContent='💾 Saving...';
+  try {
+    await save_('fees', eid||uid_(), {
+      studentId: sid, month: Number(m), year: Number(y),
+      dueAmount: Number(d), paidAmount: Number(p),
+      payDate:   document.getElementById('fdt').value,
+      payMode:   document.getElementById('fpm').value,
+      remarks:   document.getElementById('fr').value.trim()
+    });
+    closeModal(); toast('✅ Payment saved!'); go('studentDetail', { id: sid });
+  } catch(e) {
+    er.style.display='block'; er.textContent='❌ '+e.message;
+    btn.disabled=false; btn.textContent='💾 Save Payment';
+  }
+};
+window.delFee = async function(fid, sid) {
+  if (!confirm('Delete this fee record?')) return;
+  await del_('fees', fid); toast('Deleted!','info'); go('studentDetail', { id: sid });
+};
+window.printReceipt = async function(sid) {
+  const [s, fes] = await Promise.all([
+    getOne('students', sid),
+    getAll('fees', where('studentId','==',sid))
+  ]);
+  if (!s) return;
+  const sorted=fes.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month));
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  const mc=Math.max(1,(cy-s.startYear)*12+(cm-s.startMonth)+1);
+  const td=mc*Number(s.monthlyFee||0);
+  const tp=sorted.reduce((a,f)=>a+Number(f.paidAmount||0),0);
+  const bal=td-tp;
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>Receipt - ${s.name}</title>
+  <style>body{font-family:Arial,sans-serif;padding:20px;color:#333}
+  h1,h2{color:#1a237e;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:12px 0}
+  th{background:#1a237e;color:#fff;padding:9px;text-align:left}td{padding:9px;border:1px solid #ddd}
+  .sum{display:flex;gap:12px;margin:14px 0}.sb{flex:1;border:2px solid #ddd;padding:10px;border-radius:8px;text-align:center}
+  .sv{font-size:20px;font-weight:900}</style></head>
+  <body><h1>${INST}</h1><h2>Fee Receipt</h2>
+  <p style="text-align:center">Date: ${new Date().toLocaleDateString('en-IN')}</p><hr>
+  <table>
+    <tr><td><b>Student:</b></td><td>${s.name}</td><td><b>Class:</b></td><td>${clsL(s.class,s.customClass)}</td></tr>
+    <tr><td><b>Father:</b></td><td>${s.fatherName||'-'}</td><td><b>Mobile:</b></td><td>${s.mobile||'-'}</td></tr>
+    <tr><td><b>Village:</b></td><td>${s.village||'-'}</td><td><b>City:</b></td><td>${s.city||'-'}</td></tr>
+    <tr><td><b>Type:</b></td><td>${s.type==='hostel'?'Hostel':'Day Scholar'}</td>
+        <td><b>Since:</b></td><td>${MY(s.startMonth,s.startYear)}</td></tr>
+  </table>
+  <div class="sum">
+    <div class="sb"><div class="sv">₹${td.toLocaleString('en-IN')}</div><div>Total Due</div></div>
+    <div class="sb"><div class="sv">₹${tp.toLocaleString('en-IN')}</div><div>Total Paid</div></div>
+    <div class="sb"><div class="sv">₹${Math.abs(bal).toLocaleString('en-IN')}</div>
+      <div>${bal>0?'Balance Due':'Advance'}</div></div>
+  </div>
+  <table><thead><tr><th>Month</th><th>Due ₹</th><th>Paid ₹</th>
+    <th>Date</th><th>Mode</th><th>Remarks</th></tr></thead>
+  <tbody>${sorted.map(f=>`<tr>
+    <td>${MY(f.month,f.year)}</td>
+    <td>₹${Number(f.dueAmount).toLocaleString('en-IN')}</td>
+    <td>₹${Number(f.paidAmount).toLocaleString('en-IN')}</td>
+    <td>${f.payDate||'-'}</td><td>${f.payMode||'-'}</td><td>${f.remarks||'-'}</td>
+  </tr>`).join('')}</tbody></table>
+  </body></html>`);
+  w.document.close(); setTimeout(() => w.print(), 400);
+};
+
+// ════════════════════════════════════════════════
+//  HOSTEL
+// ════════════════════════════════════════════════
+async function pgHostel() {
+  const sts = await getAll('students', where('type','==','hostel'));
+  return `<div class="card">
+    <div class="card-hd">
+      <div class="card-title">🏠 Hostel Students (${sts.length})</div>
+    </div>
+    ${!sts.length
+      ? `<div class="empty"><div class="ei">🏠</div><p>कोई Hostel Student नहीं है</p></div>`
+      : `<div class="tw"><table>
+          <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Mobile</th>
+            <th>Village / City</th><th>Since</th><th></th></tr></thead>
+          <tbody>${sts.map((s,i) => `<tr>
+            <td>${i+1}</td>
+            <td><div style="display:flex;align-items:center;gap:9px">
+              ${avH(s.name)}<strong>${s.name}</strong></div></td>
+            <td><span class="badge b-blue">${clsL(s.class,s.customClass)}</span></td>
+            <td>${s.mobile||'-'}</td>
+            <td>${[s.village,s.city].filter(Boolean).join(', ')||'-'}</td>
+            <td>${MY(s.startMonth,s.startYear)}</td>
+            <td><button class="btn btn-sm btn-primary"
+              onclick="go('studentDetail',{id:'${s.id}'})">👁 View</button></td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+//  TEACHERS
+// ════════════════════════════════════════════════
+async function pgTeachers() {
+  if (!isDir()) return err_('Access Denied — Director only');
+  const tch = await getAll('teachers');
+  return `
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px" class="no-print">
+    <button class="btn btn-primary" onclick="addTchModal()">➕ Add Teacher</button>
+  </div>
+  <div class="card">
+    ${!tch.length
+      ? `<div class="empty"><div class="ei">👩‍🏫</div><p>कोई Teacher नहीं है।</p></div>`
+      : `<div class="tw"><table>
+          <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Designation</th>
+            <th>Classes</th><th>Joined</th><th>Action</th></tr></thead>
+          <tbody>${tch.map((t,i) => `<tr>
+            <td>${i+1}</td>
+            <td><div style="display:flex;align-items:center;gap:9px">
+              ${t.photo
+                ? `<img src="${t.photo}" style="width:38px;height:38px;border-radius:50%;object-fit:cover">`
+                : avH(t.name)}
+              <div><div style="font-weight:700">${t.name}</div>
+              <div style="font-size:11px;color:var(--muted)">
+                ${[t.village,t.city].filter(Boolean).join(', ')||''}</div></div>
+            </div></td>
+            <td>${t.mobile||'-'}</td><td>${t.designation||'-'}</td>
+            <td>${t.classes||'-'}</td><td>${MY(t.joinMonth,t.joinYear)}</td>
+            <td><div style="display:flex;gap:5px">
+              <button class="btn btn-sm btn-primary"
+                onclick="go('teacherDetail',{id:'${t.id}'})">👁 View</button>
+              <button class="btn btn-sm btn-outline"
+                onclick="editTchModal('${t.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger"
+                onclick="delTch('${t.id}')">🗑</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>`;
+}
+
+function tchForm(t = {}) {
+  const now=new Date();
+  const mo = MN.map((m,i) =>
+    `<option value="${i+1}" ${t.joinMonth==i+1?'selected':
+      (!t.joinMonth&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return `
+  <div class="fgrid">
+    <div class="fg fw"><label>Full Name ★</label>
+      <input id="tn" value="${t.name||''}" placeholder="Teacher's full name"></div>
+    <div class="fg"><label>Email ★ (Login ID)</label>
+      <input type="email" id="temail" value="${t.email||''}" placeholder="teacher@gmail.com"
+        ${t.id ? 'readonly style="background:#f5f5f5"' : ''}></div>
+    ${!t.id
+      ? `<div class="fg"><label>Password ★</label>
+          <input type="password" id="tpass" value="teacher@123" placeholder="Min 6 chars"></div>`
+      : '<div class="fg"></div>'}
+    <div class="fg"><label>Mobile ★</label>
+      <input type="tel" id="tm" value="${t.mobile||''}" placeholder="10-digit mobile"></div>
+    <div class="fg"><label>Designation / Subject</label>
+      <input id="tdes" value="${t.designation||''}" placeholder="e.g. Maths Teacher"></div>
+    <div class="fg"><label>Village / गाँव</label>
+      <input id="tvil" value="${t.village||''}" placeholder="Village"></div>
+    <div class="fg"><label>City / शहर</label>
+      <input id="tcit" value="${t.city||''}" placeholder="City"></div>
+    <div class="fg fw"><label>Classes Assigned</label>
+      <input id="tcls" value="${t.classes||''}" placeholder="e.g. Class 9, Class 10"></div>
+    <div class="fg"><label>Joining Month ★</label><select id="tjm">${mo}</select></div>
+    <div class="fg"><label>Joining Year ★</label>
+      <input type="number" id="tjy" value="${t.joinYear||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg fw"><label>Photo (Optional)</label>
+      <input type="file" id="tph" accept="image/*" onchange="prvPh(this,'tphp')">
+      <div id="tphp" style="margin-top:8px">
+        ${t.photo?`<img src="${t.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover">`:''}</div>
+    </div>
+  </div>
+  <div id="tErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="tchBtn"
+      onclick="saveTch('${t.id||''}','${t.uid||''}')">💾 Save Teacher</button>
+  </div>`;
+}
+
+window.addTchModal  = () => openModal('➕ Add New Teacher', tchForm());
+window.editTchModal = async function(id) {
+  openModal('✏️ Edit Teacher', spin_());
+  const t = await getOne('teachers', id);
+  setH('modalBody', t ? tchForm(t) : err_('Not found'));
+};
+window.saveTch = async function(eid, existUid) {
+  const name  = document.getElementById('tn').value.trim();
+  const email = document.getElementById('temail').value.trim();
+  const mob   = document.getElementById('tm').value.trim();
+  const jm    = document.getElementById('tjm').value;
+  const jy    = document.getElementById('tjy').value;
+  const er    = document.getElementById('tErr');
+  if (!name||!email||!mob||!jm||!jy) {
+    er.style.display='block'; er.textContent='❌ Required ★ fields भरें!'; return; }
+  if (!/^\d{10}$/.test(mob)) {
+    er.style.display='block'; er.textContent='❌ Mobile 10 digits होना चाहिए!'; return; }
+  let photo=''; const pi=document.querySelector('#tphp img'); if(pi) photo=pi.src;
+  const btn=document.getElementById('tchBtn'); btn.disabled=true; btn.textContent='💾 Saving...';
+  try {
+    let fireUid = existUid;
+    if (!eid) {
+      const pass = document.getElementById('tpass').value || 'teacher@123';
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      fireUid    = cred.user.uid;
+      await save_('users', fireUid, { name, email, role: 'teacher' });
+    }
+    const tid = eid || uid_();
+    await save_('teachers', tid, {
+      name, email, uid: fireUid, mobile: mob,
+      designation: document.getElementById('tdes').value.trim(),
+      village:     document.getElementById('tvil').value.trim(),
+      city:        document.getElementById('tcit').value.trim(),
+      classes:     document.getElementById('tcls').value.trim(),
+      joinMonth:   Number(jm), joinYear: Number(jy),
+      ...(photo ? { photo } : {})
+    });
+    closeModal();
+    if (!eid) {
+      alert(`✅ Teacher Added!\n\n📧 Login Email: ${email}\n🔑 Password: teacher@123\n\nYeh details teacher ko de dein.`);
+    } else { toast('✅ Teacher updated!'); }
+    go('teachers');
+  } catch(e) {
+    er.style.display='block'; er.textContent='❌ '+e.message;
+    btn.disabled=false; btn.textContent='💾 Save Teacher';
+  }
+};
+window.delTch = async function(id) {
+  if (!confirm('Delete this teacher? (Salary records will also be deleted)')) return;
+  try {
+    const t    = await getOne('teachers', id);
+    await del_('teachers', id);
+    const sals = await getAll('salaries', where('teacherId','==',id));
+    await Promise.all(sals.map(s => del_('salaries', s.id)));
+    if (t?.uid) await del_('users', t.uid);
+    toast('Deleted!','info'); go('teachers');
+  } catch(e) { toast('Error: '+e.message,'err'); }
+};
+
+// ════════════════════════════════════════════════
+//  TEACHER DETAIL
+// ════════════════════════════════════════════════
+async function pgTeacherDetail(id) {
+  if (!isDir()) return err_('Access Denied');
+  const [t, sals] = await Promise.all([
+    getOne('teachers', id),
+    getAll('salaries', where('teacherId','==',id))
+  ]);
+  if (!t) return err_('Teacher not found');
+  const totSal = sals.reduce((a,s) => a+Number(s.amount||0), 0);
+
+  return `
+  <div style="margin-bottom:14px" class="no-print">
+    <button class="btn btn-outline btn-sm" onclick="go('teachers')">← Back</button>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+      <div>${t.photo
+        ? `<img src="${t.photo}" style="width:88px;height:88px;border-radius:14px;object-fit:cover">`
+        : `<div class="stu-av">${ini(t.name)}</div>`}</div>
+      <div style="flex:1">
+        <h2 style="font-size:20px;font-weight:900;color:var(--primary)">${t.name}</h2>
+        <div style="margin-top:6px">
+          <span class="badge b-blue">${t.designation||'Teacher'}</span>
+        </div>
+        <div class="info-row">
+          ${[['Mobile',t.mobile],['Email',t.email],['Village',t.village],['City',t.city],
+             ['Classes',t.classes],['Joined',MY(t.joinMonth,t.joinYear)],
+             ['Total Salary Paid',cur(totSal)]]
+            .map(([l,v]) =>
+              `<div class="ii"><div class="il">${l}</div>
+               <div class="iv" ${l==='Total Salary Paid'?'style="color:var(--success)"':''}>${v||'-'}</div></div>`)
+            .join('')}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline no-print"
+        onclick="editTchModal('${t.id}')">✏️ Edit</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">💼 Salary Records</div>
+      <button class="btn btn-sm btn-primary no-print"
+        onclick="addSalModal('${t.id}')">➕ Add Salary</button>
+    </div>
+    ${!sals.length
+      ? `<div class="empty"><div class="ei">💼</div><p>कोई salary record नहीं</p></div>`
+      : `<div class="tw"><table>
+          <thead><tr><th>Month</th><th>Amount</th><th>Date</th><th>Remarks</th>
+            <th class="no-print"></th></tr></thead>
+          <tbody>${sals.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month)).map(s=>`<tr>
+            <td><strong>${MY(s.month,s.year)}</strong></td>
+            <td><span class="badge b-green">${cur(s.amount)}</span></td>
+            <td>${s.paidDate||'-'}</td><td>${s.remarks||'-'}</td>
+            <td class="no-print"><div style="display:flex;gap:4px">
+              <button class="btn btn-sm btn-outline"
+                onclick="editSalModal('${s.id}','${t.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger"
+                onclick="delSal('${s.id}','${t.id}')">🗑</button>
+            </div></td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+//  SALARY
+// ════════════════════════════════════════════════
+function salForm(tid, s = {}) {
+  const now=new Date();
+  const mo = MN.map((m,i) =>
+    `<option value="${i+1}" ${s.month==i+1?'selected':
+      (!s.month&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return `
+  <div class="fgrid">
+    <div class="fg"><label>Month ★</label><select id="sm">${mo}</select></div>
+    <div class="fg"><label>Year ★</label>
+      <input type="number" id="sy" value="${s.year||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg"><label>Amount ₹ ★</label>
+      <input type="number" id="sa" value="${s.amount||''}" placeholder="e.g. 12000"></div>
+    <div class="fg"><label>Date Paid</label>
+      <input type="date" id="spd" value="${s.paidDate||now.toISOString().split('T')[0]}"></div>
+    <div class="fg fw"><label>Remarks</label>
+      <input id="sr" value="${s.remarks||''}" placeholder="Optional..."></div>
+  </div>
+  <div id="sErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="salBtn"
+      onclick="saveSal('${s.id||''}','${tid}')">💾 Save Salary</button>
+  </div>`;
+}
+window.addSalModal  = tid => openModal('➕ Add Salary Record', salForm(tid));
+window.editSalModal = async function(sid, tid) {
+  openModal('✏️ Edit Salary', spin_());
+  const s = await getOne('salaries', sid);
+  setH('modalBody', s ? salForm(tid, s) : err_('Not found'));
+};
+window.saveSal = async function(eid, tid) {
+  const m=document.getElementById('sm').value, y=document.getElementById('sy').value;
+  const a=document.getElementById('sa').value;
+  const er=document.getElementById('sErr');
+  if (!m||!y||!a) { er.style.display='block'; er.textContent='❌ Required fields भरें!'; return; }
+  const btn=document.getElementById('salBtn'); btn.disabled=true; btn.textContent='💾 Saving...';
+  try {
+    await save_('salaries', eid||uid_(), {
+      teacherId: tid, month: Number(m), year: Number(y), amount: Number(a),
+      paidDate:  document.getElementById('spd').value,
+      remarks:   document.getElementById('sr').value.trim()
+    });
+    closeModal(); toast('✅ Salary saved!'); go('teacherDetail', { id: tid });
+  } catch(e) {
+    er.style.display='block'; er.textContent='❌ '+e.message;
+    btn.disabled=false; btn.textContent='💾 Save Salary';
+  }
+};
+window.delSal = async function(sid, tid) {
+  if (!confirm('Delete?')) return;
+  await del_('salaries', sid); toast('Deleted!','info'); go('teacherDetail', { id: tid });
+};
+
+// ════════════════════════════════════════════════
+//  REPORTS
+// ════════════════════════════════════════════════
+async function pgReports() {
+  const [sts,fees,tch,sals] = await Promise.all([
+    getAll('students'), getAll('fees'), getAll('teachers'), getAll('salaries')
+  ]);
+  window.__rd = { sts, fees, tch, sals };
+  const cd={};
+  sts.forEach(s=>{const k=clsL(s.class,s.customClass);if(!cd[k])cd[k]={t:0,h:0};cd[k].t++;if(s.type==='hostel')cd[k].h++;});
+  const mf={};
+  fees.forEach(f=>{const k=`${f.year}-${String(f.month).padStart(2,'0')}`;if(!mf[k])mf[k]={c:0,n:0};mf[k].c+=Number(f.paidAmount||0);mf[k].n++;});
+  const ts={};
+  sals.forEach(s=>{ts[s.teacherId]=(ts[s.teacherId]||0)+Number(s.amount||0);});
+
+  return `
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap" class="no-print">
+    <button class="btn btn-outline" onclick="prtR('cw')">🖨️ Print Class-wise List</button>
+    <button class="btn btn-outline" onclick="prtR('fc')">🖨️ Print Fee Collection</button>
+    ${isDir() ? `<button class="btn btn-outline" onclick="prtR('sl')">🖨️ Print Salary Report</button>` : ''}
+    <button class="btn btn-accent" onclick="expCSV()">📊 Export Students CSV</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📚 Class-wise Count</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Class</th><th>Total</th><th>Hostel</th><th>Day Scholar</th></tr></thead>
+      <tbody>
+        ${Object.entries(cd).map(([c,d])=>
+          `<tr><td><strong>${c}</strong></td>
+           <td><span class="badge b-blue">${d.t}</span></td>
+           <td>${d.h}</td><td>${d.t-d.h}</td></tr>`).join('')
+          || '<tr><td colspan="4" style="text-align:center;color:var(--muted)">No data</td></tr>'}
+        <tr style="background:var(--bg);font-weight:700">
+          <td>TOTAL</td><td>${sts.length}</td>
+          <td>${sts.filter(s=>s.type==='hostel').length}</td>
+          <td>${sts.filter(s=>s.type!=='hostel').length}</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">💰 Month-wise Fee Collection</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Month / Year</th><th>Students Paid</th><th>Amount Collected</th></tr></thead>
+      <tbody>${Object.entries(mf).sort().reverse().slice(0,24).map(([k,d])=>{
+        const[y,m]=k.split('-');
+        return`<tr><td><strong>${MN[Number(m)-1]} ${y}</strong></td>
+               <td>${d.n}</td>
+               <td><span class="badge b-green">${cur(d.c)}</span></td></tr>`;
+      }).join('')||'<tr><td colspan="3" style="text-align:center;color:var(--muted)">No records</td></tr>'}</tbody>
+    </table></div>
+  </div>
+
+  ${isDir() ? `
+  <div class="card">
+    <div class="card-hd"><div class="card-title">💼 Teacher Salary Summary</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Teacher</th><th>Designation</th><th>Joined</th><th>Total Salary</th></tr></thead>
+      <tbody>${tch.map(t=>
+        `<tr>
+          <td><div style="display:flex;align-items:center;gap:9px">
+            ${avH(t.name)}<strong>${t.name}</strong></div></td>
+          <td>${t.designation||'-'}</td>
+          <td>${MY(t.joinMonth,t.joinYear)}</td>
+          <td><span class="badge b-green">${cur(ts[t.id]||0)}</span></td>
+        </tr>`).join('')
+        ||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No teachers</td></tr>'}
+      </tbody>
+    </table></div>
+  </div>` : ''}`;
+}
+
+window.prtR = function(type) {
+  const d=window.__rd; if(!d) return;
+  let html='';
+  if(type==='cw') {
+    html=`<h2>All Students List</h2>
+    <p style="text-align:center">Date: ${new Date().toLocaleDateString('en-IN')}</p>
+    <table><thead><tr><th>#</th><th>Name</th><th>Class</th><th>Father</th>
+    <th>Mobile</th><th>Type</th><th>Village</th><th>City</th><th>Since</th></tr></thead>
+    <tbody>${d.sts.map((s,i)=>`<tr>
+      <td>${i+1}</td><td><b>${s.name}</b></td><td>${clsL(s.class,s.customClass)}</td>
+      <td>${s.fatherName||'-'}</td><td>${s.mobile||'-'}</td>
+      <td>${s.type==='hostel'?'Hostel':'Day Scholar'}</td>
+      <td>${s.village||'-'}</td><td>${s.city||'-'}</td>
+      <td>${MY(s.startMonth,s.startYear)}</td>
+    </tr>`).join('')}</tbody></table>`;
+  }
+  if(type==='fc') {
+    const mf2={};d.fees.forEach(f=>{const k=`${f.year}-${String(f.month).padStart(2,'0')}`;if(!mf2[k])mf2[k]={c:0,n:0};mf2[k].c+=Number(f.paidAmount||0);mf2[k].n++;});
+    html=`<h2>Fee Collection Report</h2>
+    <table><thead><tr><th>Month</th><th>Students</th><th>Amount</th></tr></thead>
+    <tbody>${Object.entries(mf2).sort().reverse().map(([k,v])=>{const[y,m]=k.split('-');
+      return`<tr><td>${MN[Number(m)-1]} ${y}</td><td>${v.n}</td><td>₹${v.c.toLocaleString('en-IN')}</td></tr>`;
+    }).join('')}</tbody></table>`;
+  }
+  if(type==='sl') {
+    html=`<h2>Teacher Salary Report</h2>
+    <table><thead><tr><th>#</th><th>Teacher</th><th>Month</th><th>Amount ₹</th><th>Date</th><th>Remarks</th></tr></thead>
+    <tbody>${d.sals.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month)).map((s,i)=>{
+      const t=d.tch.find(x=>x.id===s.teacherId);
+      return`<tr><td>${i+1}</td><td>${t?.name||'N/A'}</td><td>${MY(s.month,s.year)}</td>
+      <td>₹${Number(s.amount).toLocaleString('en-IN')}</td><td>${s.paidDate||'-'}</td><td>${s.remarks||'-'}</td></tr>`;
+    }).join('')}</tbody></table>`;
+  }
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>${INST}</title>
+  <style>body{font-family:Arial;padding:20px}h1,h2{color:#1a237e;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:12px 0}
+  th{background:#1a237e;color:#fff;padding:9px;text-align:left}td{padding:9px;border:1px solid #ddd}</style></head>
+  <body><h1>${INST}</h1>${html}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),400);
+};
+
+window.expCSV = function() {
+  const d=window.__rd; if(!d) return;
+  let csv='Name,Class,Father,Mother,Mobile,Village,City,Type,Start Month,Start Year,Monthly Fee\n';
+  d.sts.forEach(s=>{
+    csv+=`"${s.name}","${clsL(s.class,s.customClass)}","${s.fatherName||''}","${s.motherName||''}",` +
+         `"${s.mobile||''}","${s.village||''}","${s.city||''}","${s.type}",` +
+         `"${MN[s.startMonth-1]}","${s.startYear}","${s.monthlyFee||''}"\n`;
+  });
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download=INST+'_Students.csv'; a.click();
+};
+
+// ════════════════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════════════════
+async function pgSettings() {
+  if (!isDir()) return err_('Access Denied');
+  const [settings, users] = await Promise.all([
+    getOne('settings','main'),
+    getAll('users', where('role','==','teacher'))
+  ]);
+  return `
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title" style="margin-bottom:18px">🏫 Institute / School Name</div>
+    <div class="fg" style="max-width:420px">
+      <label>School Name</label>
+      <input id="stName" value="${settings?.institute_name||INST}"
+        placeholder="e.g. Wasi Teaching Center">
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveInst()">💾 Save Name</button>
+    <span id="instMsg" style="margin-left:12px"></span>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title" style="margin-bottom:18px">🔑 Change My Password</div>
+    <div class="fgrid" style="max-width:500px">
+      <div class="fg"><label>New Password</label>
+        <input type="password" id="np" placeholder="Min 6 characters"></div>
+      <div class="fg"><label>Confirm Password</label>
+        <input type="password" id="cp" placeholder="Repeat password"></div>
+    </div>
+    <div id="pMsg" class="alert" style="display:none;max-width:460px;margin-bottom:12px"></div>
+    <button class="btn btn-primary btn-sm" onclick="chgPass()">🔒 Update Password</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><div class="card-title">👥 Teacher Login Accounts</div></div>
+    <div class="alert a-info" style="margin-bottom:12px">
+      ℹ️ Teacher add karne par automatically Firebase Auth account banta hai.<br>
+      Default password: <strong>teacher@123</strong> — Teacher baad mein khud change kar sakta hai.
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Teacher Name</th><th>Login Email</th></tr></thead>
+      <tbody>${users.map(u =>
+        `<tr><td><strong>${u.name}</strong></td><td>${u.email||'-'}</td></tr>`).join('')
+        || '<tr><td colspan="2" style="text-align:center;color:var(--muted)">No teacher accounts yet</td></tr>'}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+window.saveInst = async function() {
+  const n = document.getElementById('stName').value.trim();
+  if (!n) { alert('School name daalein'); return; }
+  await save_('settings','main',{ institute_name: n });
+  INST = n;
+  document.getElementById('sbName').textContent      = '🏫 '+n;
+  document.getElementById('loginName').textContent   = n;
+  document.getElementById('instMsg').innerHTML = '<span class="badge b-green">✅ Saved!</span>';
+  setTimeout(()=>{ const el=document.getElementById('instMsg'); if(el) el.innerHTML=''; }, 3000);
+};
+
+window.chgPass = async function() {
+  const np=document.getElementById('np').value;
+  const cp=document.getElementById('cp').value;
+  const msg=document.getElementById('pMsg');
+  if (!np||np.length<6) {
+    msg.className='alert a-danger';msg.style.display='block';
+    msg.textContent='❌ Password min 6 characters ka hona chahiye!'; return; }
+  if (np!==cp) {
+    msg.className='alert a-danger';msg.style.display='block';
+    msg.textContent='❌ Passwords match nahi kar rahe!'; return; }
+  try {
+    await updatePassword(auth.currentUser, np);
+    msg.className='alert a-success'; msg.style.display='block';
+    msg.textContent='✅ Password successfully updated!';
+  } catch(e) {
+    msg.className='alert a-danger'; msg.style.display='block';
+    msg.textContent='❌ '+e.message;
+  }
+};
+</script>
+</body>
+</html>
