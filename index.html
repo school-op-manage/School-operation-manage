@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>School Management System</title>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://firestore.googleapis.com">
+<link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<meta name="theme-color" content="#1a237e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="School App">
+<link rel="manifest" href="manifest.json">
+<!-- Fonts removed for speed -->
+<!-- SheetJS loaded lazily when Bulk Upload is opened -->
+<style>
+:root{--primary:#1a237e;--primary-l:#3949ab;--primary-d:#0d1642;--accent:#f9a825;--danger:#c62828;--success:#2e7d32;--warn:#e65100;--bg:#eef0f5;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sw:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,'Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* LOGIN */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,var(--primary-d),var(--primary) 55%,var(--primary-l));display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .ico{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),var(--primary-l));border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--primary);line-height:1.3}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px}
+/* FORMS */
+.fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18)}.btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-l)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--primary-d);font-weight:700}
+.btn-full{width:100%;justify-content:center}.btn-sm{padding:7px 14px;font-size:12px}
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--primary-d);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;display:flex;flex-direction:column}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:14px;font-weight:800;color:var(--accent);line-height:1.3}
+.sb-role{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sb-nav{padding:12px 0;flex:1}
+.nav-sec{padding:10px 18px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{border-right:3px solid var(--accent);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar h2{font-size:18px;font-weight:800;color:var(--primary)}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary)}
+.page{padding:24px}
+/* CARDS */
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:800;color:var(--primary)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid transparent}
+.sc.blue{border-color:var(--primary)}.sc.gold{border-color:var(--accent)}.sc.green{border-color:var(--success)}.sc.red{border-color:var(--danger)}.sc.ora{border-color:var(--warn)}
+.sc-ico{font-size:26px;margin-bottom:6px}.sc-val{font-size:28px;font-weight:900;color:var(--primary)}.sc-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle}
+tbody tr:hover{background:#f6f8ff}
+/* BADGES */
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-blue{background:#e8eaf6;color:var(--primary)}.b-green{background:#e8f5e9;color:var(--success)}
+.b-red{background:#ffebee;color:var(--danger)}.b-ora{background:#fff3e0;color:var(--warn)}.b-gold{background:#fff8e1;color:#c17900}
+.av{border-radius:50%;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0}
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary)}
+.search-bar input{flex:1;min-width:180px}
+/* MODAL */
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fw{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+/* FEE */
+.fee-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.fbox{text-align:center;padding:14px 10px;border-radius:12px}
+.fbox.due{background:#fff3e0}.fbox.paid{background:#e8f5e9}.fbox.adv{background:#e8eaf6}.fbox.bal{background:#ffebee}
+.fbox .fa{font-size:17px;font-weight:900}
+.fbox.due .fa{color:var(--warn)}.fbox.paid .fa{color:var(--success)}.fbox.adv .fa{color:var(--primary)}.fbox.bal .fa{color:var(--danger)}
+.fbox .fl{font-size:11px;color:var(--muted);margin-top:2px}
+/* ALERTS */
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:14px;font-size:13.5px}
+.a-danger{background:#ffebee;color:var(--danger);border-left:4px solid var(--danger)}
+.a-success{background:#e8f5e9;color:var(--success);border-left:4px solid var(--success)}
+.a-info{background:#e8eaf6;color:var(--primary);border-left:4px solid var(--primary)}
+.a-warn{background:#fff3e0;color:var(--warn);border-left:4px solid var(--warn)}
+/* INFO ROW */
+.info-row{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.ii .il{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ii .iv{font-size:14px;font-weight:600;margin-top:2px}
+.stu-av{width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;flex-shrink:0}
+/* CLASS GRID */
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cls-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;transition:all .2s;border:2px solid transparent}
+.cls-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.cls-card .cn{font-weight:800;font-size:13px;color:var(--primary)}.cls-card .cc{font-size:26px;font-weight:900;margin:4px 0}.cls-card .cl{font-size:11px;color:var(--muted)}
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}.empty p{font-size:15px}
+/* SPINNER */
+.spin{display:inline-block;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sbOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.t-ok{background:var(--success)}.toast.t-info{background:var(--primary)}.toast.t-err{background:var(--danger)}
+/* BULK UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:14px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbff}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:#eef0f5}
+.upload-zone .ui{font-size:48px;margin-bottom:12px}
+.upload-zone h3{font-size:16px;font-weight:700;color:var(--primary);margin-bottom:6px}
+.upload-zone p{font-size:13px;color:var(--muted)}
+/* REVIEW TABLE */
+.review-table{width:100%;border-collapse:collapse;font-size:13px}
+.review-table th{background:var(--primary);color:#fff;padding:8px 10px;text-align:left;white-space:nowrap}
+.review-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.review-table tr:hover{background:#f6f8ff}
+.review-table input,.review-table select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.review-table input:focus,.review-table select:focus{border-color:var(--primary)}
+.row-ok{background:#f0fff4!important}
+.row-err{background:#fff5f5!important}
+/* PROGRESS */
+.prog-wrap{background:var(--border);border-radius:20px;height:8px;margin:10px 0}
+.prog-bar{height:8px;border-radius:20px;background:linear-gradient(90deg,var(--primary),var(--primary-l));transition:width .3s}
+/* COMPETITION */
+.comp-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.cb-gold{background:#fff8e1;color:#c17900;border:1px solid #f9a825}
+.cb-silver{background:#f5f5f5;color:#555;border:1px solid #ccc}
+.cb-bronze{background:#fbe9e7;color:#bf360c;border:1px solid #ff7043}
+.cb-pass{background:#e8f5e9;color:var(--success)}
+.cb-fail{background:#ffebee;color:var(--danger)}
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:24px;overflow-x:auto}
+.step{flex:1;min-width:80px;text-align:center;padding:12px 8px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:3px solid var(--border);transition:all .2s}
+.step.active{color:var(--primary);border-color:var(--primary)}
+.step.done{color:var(--success);border-color:var(--success)}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:4px}
+.step.active .step-num{background:var(--primary)}
+.step.done .step-num{background:var(--success)}
+/* EDITABLE CELL */
+.edit-cell{position:relative}
+.edit-cell .edit-icon{display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);cursor:pointer}
+.edit-cell:hover .edit-icon{display:block}
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  #sbOverlay.show{display:block}.main{margin-left:0}.hamburger{display:block}
+  .page{padding:14px}.fgrid{grid-template-columns:1fr}.fgrid .fw{grid-column:1}
+  .fee-sum{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.modal{padding:18px}
+}
+
+/* ── SALARY STATUS ── */
+.sal-row-paid{background:#f0fff4!important}
+.sal-row-unpaid{background:#fff5f5!important}
+.sal-row-adv{background:#fffbeb!important}
+.sal-status{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.ss-paid{background:#e8f5e9;color:#2e7d32}
+.ss-unpaid{background:#ffebee;color:#c62828}
+.ss-advance{background:#fff8e1;color:#c17900}
+.ss-partial{background:#fff3e0;color:#e65100}
+/* ── OPERATOR ROLE ── */
+.role-op .dir-only{display:none!important}
+/* ── FEE EXPORT FILTERS ── */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:flex-end}
+.filter-row .fg{margin-bottom:0;min-width:140px}
+/* ── PERMISSION TAGS ── */
+.perm-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#e8eaf6;color:#1a237e;margin:3px}
+.perm-tag .rm{cursor:pointer;color:#c62828;margin-left:4px}
+
+@media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin-left:0!important}.page{padding:0!important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="ico">🏫</div>
+      <h1 id="loginName">School Management System</h1>
+      <p>Powered by Firebase</p>
+    </div>
+    <div id="loginErr" class="alert a-danger" style="display:none"></div>
+    <div class="fg"><label>Email / ईमेल</label>
+      <input type="email" id="lEmail" placeholder="director@school.com" autocomplete="email"></div>
+    <div class="fg"><label>Password / पासवर्ड</label>
+      <input type="password" id="lPass" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">🔐 Login</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div id="sbOverlay" onclick="closeSb()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-brand" id="sbName">🏫 School</div>
+      <div class="sb-role" id="sbRole">Director</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">मुख्य / Main</div>
+      <div class="nav-item active" onclick="go('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-sec">छात्र / Students</div>
+      <div class="nav-item" onclick="go('students')"><span class="ni">🎓</span> All Students</div>
+      <div class="nav-item" onclick="go('hostel')"><span class="ni">🏠</span> Hostel Students</div>
+      <div class="nav-item" id="n-bulkup" onclick="go('bulkUpload')"><span class="ni">📤</span> Bulk Upload</div>
+      <div class="nav-sec" id="ns-teacher">शिक्षक / Teachers</div>
+      <div class="nav-item" id="n-teachers" onclick="go('teachers')"><span class="ni">👩‍🏫</span> All Teachers</div>
+      <div class="nav-sec" id="ns-comp">प्रतियोगिता / Competition</div>
+      <div class="nav-item" id="n-comp" onclick="go('competition')"><span class="ni">🏆</span> Competition Exams</div>
+      <div class="nav-sec" id="ns-fee-export">Fee Export</div>
+      <div class="nav-item" id="n-fee-export" onclick="go('feeExport')"><span class="ni">📊</span> Due/Advance Export</div>
+      <div class="nav-sec">रिपोर्ट / Reports</div>
+      <div class="nav-item" onclick="go('reports')"><span class="ni">📋</span> Reports</div>
+      <div class="nav-sec" id="ns-settings">सेटिंग / Settings</div>
+      <div class="nav-item" id="n-settings" onclick="go('settings')"><span class="ni">⚙️</span> Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="nav-item" onclick="doLogout()" style="border-radius:10px"><span class="ni">🚪</span> Logout</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="hamburger" onclick="toggleSb()">☰</button>
+        <h2 id="pgTitle">Dashboard</h2>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" id="tbUser"></span>
+    </div>
+    <div class="page" id="pageContent"><div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modalWrap" class="modal-wrap" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script type="module" defer>
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,deleteDoc,query,where,serverTimestamp}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,updatePassword,createUserWithEmailAndPassword}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ══ YOUR FIREBASE CONFIG ══
+const firebaseConfig={
+  apiKey:"AIzaSyCaFEIJbHpfOhldbeehsWdMGk35hFWN1G4",
+  authDomain:"school-operation-manage.firebaseapp.com",
+  projectId:"school-operation-manage",
+  storageBucket:"school-operation-manage.firebasestorage.app",
+  messagingSenderId:"122531044879",
+  appId:"1:122531044879:web:c0f19d336a36c6bab60d7a"
+};
+
+const fbApp=initializeApp(firebaseConfig);
+const db=getFirestore(fbApp);
+const auth=getAuth(fbApp);
+
+// ── GLOBALS ──
+let CU=null,ROLE=null,UDATA=null,INST='School Management System';
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ── FIRESTORE ──
+const col_=c=>collection(db,c);
+const ref_=(c,id)=>doc(db,c,id);
+async function getAll(c,...cons){
+  const q=cons.length?query(col_(c),...cons):col_(c);
+  const s=await getDocs(q);
+  return s.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function getOne(c,id){const s=await getDoc(ref_(c,id));return s.exists()?{id:s.id,...s.data()}:null;}
+async function save_(c,id,data){await setDoc(ref_(c,id),{...data,updatedAt:serverTimestamp()},{merge:true});}
+async function del_(c,id){await deleteDoc(ref_(c,id));}
+// ── IN-MEMORY CACHE for fast repeated page loads ──
+const _cache={};
+const _cacheTime={};
+const CACHE_TTL=30000; // 30 seconds
+async function getAllCached(c,...cons){
+  if(!cons.length){
+    const now=Date.now();
+    if(_cache[c]&&(now-(_cacheTime[c]||0))<CACHE_TTL)return _cache[c];
+    const res=await getAll(c,...cons);
+    _cache[c]=res;_cacheTime[c]=now;
+    return res;
+  }
+  return getAll(c,...cons);
+}
+function clearCache(c){delete _cache[c];delete _cacheTime[c];}
+
+
+// ── UI HELPERS ──
+const MY=(m,y)=>MN[m-1]+' '+y;
+const clsL=(c,cc)=>c==='Other'?(cc||'Other'):('Class '+c);
+const ini=n=>(n||'?').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'??';
+const avH=(n,s=38,f=14)=>`<div class="av" style="width:${s}px;height:${s}px;font-size:${f}px">${ini(n)}</div>`;
+const cur=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const isDir=()=>ROLE==='director';
+const isOp=()=>ROLE==='operator';
+const isDirOrOp=()=>isDir()||isOp();
+// Check if operator has delete permission for a student
+function opCanDelete(s){
+  if(isDir())return true;
+  if(!isOp())return false;
+  const perms=window.__opPerms||[];
+  return perms.some(p=>{
+    if(p.type==='class')return clsL(s.class,s.customClass)===p.value;
+    if(p.type==='rollRange'&&s.rollNumber){
+      const roll=Number(s.rollNumber);
+      return roll>=p.from&&roll<=p.to;
+    }
+    return false;
+  });
+}
+const spin_=()=>`<div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div>`;
+const err_=m=>`<div class="alert a-danger">❌ ${m}</div>`;
+const uid_=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+const setH=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h;};
+
+function toast(msg,type='ok'){
+  const t=document.createElement('div');
+  t.className=`toast t-${type}`;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},3500);
+}
+
+// ── AUTH ──
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    CU=user;
+    // Check sessionStorage cache first (avoids DB call on page refresh)
+    const cached=sessionStorage.getItem('udata_'+user.uid);
+    if(cached){
+      UDATA=JSON.parse(cached);ROLE=UDATA.role;
+    }else{
+      UDATA=await getOne('users',user.uid);
+      if(!UDATA){await signOut(auth);showLogin();return;}
+      ROLE=UDATA.role;
+      sessionStorage.setItem('udata_'+user.uid,JSON.stringify(UDATA));
+    }
+    // Cache settings too
+    const cachedInst=sessionStorage.getItem('inst');
+    if(cachedInst){INST=cachedInst;}
+    else{
+      const st=await getOne('settings','main');
+      if(st?.institute_name){INST=st.institute_name;sessionStorage.setItem('inst',INST);}
+    }
+    showApp();
+  }else{
+    sessionStorage.clear();
+    showLogin();
+  }
+});
+
+function showLogin(){
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginName').textContent=INST;
+}
+function showApp(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('sbName').textContent='🏫 '+INST;
+  const roleLabel=isDir()?'👑 Director':isOp()?'📝 Operator':'👩‍🏫 '+(UDATA?.name||'Teacher');
+  document.getElementById('sbRole').textContent=roleLabel;
+  document.getElementById('tbUser').textContent=UDATA?.name||CU.email;
+  document.getElementById('loginName').textContent=INST;
+
+  // Load operator delete permissions
+  if(isOp()){
+    getOne('settings','main').then(st=>{window.__opPerms=st?.operatorDeletePerms||[];});
+  }
+
+  // Visibility rules
+  const dirOnly=['n-teachers','ns-teacher','n-settings','ns-settings','ns-fee-export','n-fee-export'];
+  const dirAndOp=['n-bulkup','n-comp','ns-comp'];
+  dirOnly.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDir()?'':'none';});
+  dirAndOp.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDirOrOp()?'':'none';});
+  go('dashboard');
+}
+
+window.doLogin=async function(){
+  const email=document.getElementById('lEmail').value.trim();
+  const pass=document.getElementById('lPass').value;
+  const er=document.getElementById('loginErr');
+  const btn=document.getElementById('loginBtn');
+  er.style.display='none';
+  if(!email||!pass){er.style.display='block';er.textContent='❌ Email aur password daalein';return;}
+  btn.disabled=true;btn.textContent='⏳ Logging in...';
+  try{await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){er.style.display='block';er.textContent='❌ Email ya password galat hai!';btn.disabled=false;btn.textContent='🔐 Login';}
+};
+window.doLogout=async()=>await signOut(auth);
+
+// ── NAVIGATION ──
+let PAGE='dashboard',PARAMS={};
+const TITLES={dashboard:'Dashboard',students:'Students / छात्र',hostel:'Hostel Students',
+  teachers:'Teachers / शिक्षक',reports:'Reports / रिपोर्ट',settings:'Settings / सेटिंग',
+  studentDetail:'Student Detail',teacherDetail:'Teacher Detail',
+  bulkUpload:'Bulk Upload / बल्क अपलोड',competition:'Competition Exams / प्रतियोगिता',
+  feeExport:'Due / Advance Export'};
+
+window.go=async function(page,params={}){
+  closeSb();PAGE=page;PARAMS=params;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const nav=document.querySelector(`.nav-item[onclick*="'${page}'"]`);
+  if(nav)nav.classList.add('active');
+  document.getElementById('pgTitle').textContent=TITLES[page]||page;
+  setH('pageContent',spin_());
+  try{
+    let html='';
+    if(page==='dashboard')html=await pgDash();
+    else if(page==='students')html=await pgStudents();
+    else if(page==='hostel')html=await pgHostel();
+    else if(page==='teachers')html=await pgTeachers();
+    else if(page==='reports')html=await pgReports();
+    else if(page==='settings')html=await pgSettings();
+    else if(page==='studentDetail')html=await pgStudentDetail(params.id);
+    else if(page==='teacherDetail')html=await pgTeacherDetail(params.id);
+    else if(page==='bulkUpload')html=pgBulkUpload();
+    else if(page==='competition')html=await pgCompetition();
+    else if(page==='feeExport')html=await pgFeeExport();
+    setH('pageContent',html);
+  }catch(e){setH('pageContent',err_(e.message||'Page load error'));console.error(e);}
+  window.scrollTo(0,0);
+};
+window.toggleSb=()=>{document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('show');};
+window.closeSb=()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('show');};
+window.openModal=(t,b)=>{document.getElementById('modalTitle').textContent=t;setH('modalBody',b);document.getElementById('modalWrap').style.display='flex';};
+window.closeModal=()=>{document.getElementById('modalWrap').style.display='none';};
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+async function pgDash(){
+  const [students,teachers,fees]=await Promise.all([getAllCached('students'),getAllCached('teachers'),isDir()?getAllCached('fees'):Promise.resolve([])]);
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  const hostel=students.filter(s=>s.type==='hostel').length;
+
+  // Fee stats — Director only
+  let feeHTML='';
+  if(isDir()){
+    const monthFee=fees.filter(f=>f.month==cm&&f.year==cy).reduce((a,f)=>a+Number(f.paidAmount||0),0);
+    const pending=[];
+    students.forEach(s=>{
+      const sf=fees.filter(f=>f.studentId===s.id);
+      const tp=sf.reduce((a,f)=>a+Number(f.paidAmount||0),0);
+      const mc=Math.max(1,(cy-s.startYear)*12+(cm-s.startMonth)+1);
+      const bal=mc*Number(s.monthlyFee||0)-tp;
+      if(bal>0)pending.push({...s,balance:bal});
+    });
+    feeHTML=`
+    <div class="sc green"><div class="sc-ico">💰</div><div class="sc-val" style="font-size:18px">${cur(monthFee)}</div><div class="sc-lbl">This Month Collection</div></div>
+    <div class="sc red"><div class="sc-ico">⚠️</div><div class="sc-val">${pending.length}</div><div class="sc-lbl">Fee Pending</div></div>`;
+
+    if(pending.length){
+      feeHTML+=`<style>.pending-section{display:block}</style>`;
+      window.__pending=pending;
+    }
+  }
+
+  const cd={};students.forEach(s=>{const k=clsL(s.class,s.customClass);cd[k]=(cd[k]||0)+1;});
+
+  return `
+  <div class="stats">
+    <div class="sc blue"><div class="sc-ico">🎓</div><div class="sc-val">${students.length}</div><div class="sc-lbl">Total Students</div></div>
+    <div class="sc gold"><div class="sc-ico">🏠</div><div class="sc-val">${hostel}</div><div class="sc-lbl">Hostel</div></div>
+    <div class="sc green"><div class="sc-ico">🚶</div><div class="sc-val">${students.length-hostel}</div><div class="sc-lbl">Day Scholar</div></div>
+    <div class="sc ora"><div class="sc-ico">👩‍🏫</div><div class="sc-val">${teachers.length}</div><div class="sc-lbl">Teachers</div></div>
+    ${feeHTML}
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📚 Class-wise Students</div>
+      ${isDir()?`<button class="btn btn-sm btn-accent" onclick="go('bulkUpload')">📤 Bulk Upload</button>`:''}
+    </div>
+    ${!Object.keys(cd).length
+      ?`<div class="empty"><div class="ei">📚</div><p>कोई छात्र नहीं। Student add करें।</p></div>`
+      :`<div class="cls-grid">${Object.entries(cd).map(([c,n])=>
+          `<div class="cls-card" onclick="go('students')">
+            <div class="cn">${c}</div><div class="cc">${n}</div><div class="cl">Students</div>
+          </div>`).join('')}</div>`}
+  </div>
+
+  ${isDir()&&window.__pending?.length?`
+  <div class="card">
+    <div class="card-hd"><div class="card-title">⚠️ Fee Pending Students</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Student</th><th>Class</th><th>Balance</th><th></th></tr></thead>
+      <tbody>${window.__pending.map(s=>`<tr>
+        <td><div style="display:flex;align-items:center;gap:9px">${avH(s.name)}<strong>${s.name}</strong></div></td>
+        <td><span class="badge b-blue">${clsL(s.class,s.customClass)}</span></td>
+        <td><span class="badge b-red">${cur(s.balance)}</span></td>
+        <td><button class="btn btn-sm btn-primary" onclick="go('studentDetail',{id:'${s.id}'})">View</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>`:''}`;
+}
+
+// ══════════════════════════════════════════════
+//  BULK UPLOAD
+// ══════════════════════════════════════════════
+function pgBulkUpload(){
+  if(!isDirOrOp())return err_('Access Denied');
+  return `
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📤 Bulk Upload Students</div></div>
+    <div class="alert a-info" style="margin-bottom:16px">
+      <strong>Excel/CSV format:</strong> पहली row में column names होने चाहिए।<br>
+      Supported columns: <code>Name, Class, Mobile, Father Name, Mother Name, Village, City, Monthly Fee, Start Month, Start Year, Type (hostel/dayscholar), Roll Number</code><br>
+      Column names Hindi/English दोनों में accept होंगे। Extra columns ignore होंगी।
+    </div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div class="ui">📂</div>
+      <h3>Excel या CSV file यहाँ Drop करें</h3>
+      <p>या click करके file select करें</p>
+      <p style="margin-top:8px;font-size:11px;color:var(--muted)">.xlsx, .xls, .csv supported</p>
+    </div>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(this)">
+    <div style="margin-top:16px">
+      <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">⬇️ Download Template (Excel)</button>
+    </div>
+  </div>
+  <div id="reviewSection" style="display:none"></div>`;
+}
+
+// Column name mapping — Hindi + English variants
+const COL_MAP={
+  name:['name','naam','नाम','student name','student naam','full name'],
+  class:['class','kaksha','कक्षा','class name','grade'],
+  mobile:['mobile','phone','contact','mob','mobile number','phone number','contact number'],
+  fatherName:['father','father name','pita','पिता','pita ka naam','dad'],
+  motherName:['mother','mother name','mata','माता','mata ka naam','mom'],
+  village:['village','gaon','गाँव','gram'],
+  city:['city','shahar','शहर','town'],
+  monthlyFee:['fee','monthly fee','fees','monthly fees','माहवारी फीस','fees per month'],
+  startMonth:['start month','joining month','admission month','month','महीना'],
+  startYear:['start year','joining year','admission year','year','साल','वर्ष'],
+  type:['type','student type','hostel/day','hostel'],
+  rollNumber:['roll','roll no','roll number','रोल नंबर','roll no.','exam roll'],
+};
+
+function detectColumn(header){
+  const h=String(header).toLowerCase().trim();
+  for(const[field,variants]of Object.entries(COL_MAP)){
+    if(variants.some(v=>h.includes(v)))return field;
+  }
+  return null;
+}
+
+window.handleDrop=function(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file)processFile(file);
+};
+
+window.handleFileSelect=function(inp){
+  const file=inp.files[0];if(file)processFile(file);
+};
+
+window.downloadTemplate=function(){
+  // Create a sample CSV template
+  const csv=`Name,Class,Mobile,Father Name,Mother Name,Village,City,Monthly Fee,Start Month,Start Year,Type,Roll Number
+Imtiyaz Surjapuri,10,9876543210,Ahmed Surjapuri,Fatima Surjapuri,Surjapur,Kishanganj,1500,April,2024,dayscholar,
+Rahul Kumar,9,9876543211,Suresh Kumar,Meena Kumar,Rampur,Patna,1200,January,2024,hostel,
+Priya Sharma,12,9876543212,Ramesh Sharma,Sunita Sharma,Hajipur,Vaishali,2000,June,2023,dayscholar,`;
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='Student_Upload_Template.csv';a.click();
+  toast('✅ Template download ho rahi hai!');
+};
+
+async function processFile(file){
+  const zone=document.getElementById('uploadZone');
+  zone.innerHTML=`<div class="ui spin">⏳</div><h3>File process ho rahi hai...</h3>`;
+
+  try{
+    let rows=[];
+    if(file.name.endsWith('.csv')){
+      const text=await file.text();
+      rows=parseCSV(text);
+    }else{
+      rows=await parseExcel(file);
+    }
+
+    if(!rows||rows.length<2){
+      zone.innerHTML=`<div class="ui">❌</div><h3>File mein data nahi mila</h3><p>File dobara check karein</p>`;
+      return;
+    }
+
+    // Map columns
+    const headers=rows[0].map(h=>String(h).trim());
+    const colIdx={};
+    headers.forEach((h,i)=>{
+      const field=detectColumn(h);
+      if(field)colIdx[field]=i;
+    });
+
+    // Parse student rows
+    const students=[];
+    const errors=[];
+    for(let i=1;i<rows.length;i++){
+      const row=rows[i];
+      if(!row.some(cell=>cell))continue; // skip empty rows
+      const s=mapRowToStudent(row,colIdx,i+1);
+      students.push(s);
+    }
+
+    showReviewTable(students,colIdx,headers);
+  }catch(e){
+    zone.innerHTML=`<div class="ui">❌</div><h3>File read error</h3><p>${e.message}</p>`;
+    console.error(e);
+  }
+}
+
+function parseCSV(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  return lines.map(line=>{
+    const cells=[];let cur='',inQ=false;
+    for(const ch of line){
+      if(ch==='"')inQ=!inQ;
+      else if(ch===','&&!inQ){cells.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+function parseExcel(file){
+  return new Promise((resolve,reject)=>{
+    // Lazy load SheetJS only when needed
+    function doRead(){
+      const reader=new FileReader();
+      reader.onload=e=>{
+        try{
+          const wb=XLSX.read(e.target.result,{type:'array'});
+          const ws=wb.Sheets[wb.SheetNames[0]];
+          const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+          resolve(data);
+        }catch(err){reject(err);}
+      };
+      reader.onerror=reject;
+      reader.readAsArrayBuffer(file);
+    }
+    if(window.XLSX){doRead();return;}
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=doRead;s.onerror=()=>reject(new Error('XLSX library load failed'));
+    document.head.appendChild(s);
+  });
+}
+
+function mapRowToStudent(row,colIdx,rowNum){
+  const get=field=>colIdx[field]!==undefined?String(row[colIdx[field]]||'').trim():'';
+  const now=new Date();
+
+  // Parse class
+  let cls=get('class')||'';
+  let customClass='';
+  const clsNum=cls.replace(/class\s*/i,'').trim();
+  if(/^\d+$/.test(clsNum)&&Number(clsNum)>=1&&Number(clsNum)<=12){
+    cls=clsNum;
+  }else if(cls){
+    customClass=cls;cls='Other';
+  }else{cls='';}
+
+  // Parse month
+  const monthStr=get('startMonth').toLowerCase();
+  let startMonth=now.getMonth()+1;
+  MN.forEach((m,i)=>{if(m.toLowerCase().startsWith(monthStr.slice(0,3)))startMonth=i+1;});
+  if(/^\d+$/.test(monthStr)&&Number(monthStr)>=1&&Number(monthStr)<=12)startMonth=Number(monthStr);
+
+  // Parse year
+  let startYear=Number(get('startYear'))||now.getFullYear();
+  if(startYear<2000||startYear>2035)startYear=now.getFullYear();
+
+  // Parse type
+  const typeStr=get('type').toLowerCase();
+  const type=typeStr.includes('hostel')?'hostel':'dayscholar';
+
+  // Validation
+  const errors=[];
+  const name=get('name');
+  const mobile=get('mobile').replace(/\D/g,'');
+  if(!name)errors.push('Name missing');
+  if(!cls)errors.push('Class missing');
+  if(mobile&&!/^\d{10}$/.test(mobile))errors.push('Mobile invalid');
+
+  return{
+    _rowNum:rowNum,
+    _errors:errors,
+    _imported:false,
+    id:uid_(),
+    name,
+    class:cls,customClass,
+    monthlyFee:Number(get('monthlyFee').replace(/[^\d.]/g,''))||0,
+    fatherName:get('fatherName'),
+    motherName:get('motherName'),
+    mobile:mobile.slice(-10),
+    village:get('village'),
+    city:get('city'),
+    startMonth,startYear,
+    type,
+    rollNumber:get('rollNumber'),
+  };
+}
+
+function showReviewTable(students,colIdx,origHeaders){
+  const section=document.getElementById('reviewSection');
+  section.style.display='block';
+
+  const errCount=students.filter(s=>s._errors.length>0).length;
+  const okCount=students.length-errCount;
+
+  const months=MN.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  const classOpts=[1,2,3,4,5,6,7,8,9,10,11,12,'Other'].map(c=>`<option value="${c}">${c==='Other'?'Other':'Class '+c}</option>`).join('');
+
+  window.__uploadStudents=students;
+
+  section.innerHTML=`
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd">
+      <div class="card-title">✅ Review & Edit — ${students.length} Students मिले</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge b-green">${okCount} Ready</span>
+        ${errCount?`<span class="badge b-red">${errCount} Fix needed</span>`:''}
+        <button class="btn btn-sm btn-outline" onclick="selectAllRows(true)">सब Select</button>
+        <button class="btn btn-sm btn-outline" onclick="selectAllRows(false)">सब Deselect</button>
+      </div>
+    </div>
+    <div class="alert a-info" style="margin-bottom:12px">
+      📝 कोई भी cell पर click करके edit कर सकते हैं। ✅ वाले rows select करके Import करें।
+    </div>
+    <div id="uploadProgress" style="display:none">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:600">Uploading...</span>
+        <span id="progText" style="font-size:13px;color:var(--muted)">0/${students.length}</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="importSelected()">💾 Selected Import करें</button>
+      <button class="btn btn-success" onclick="importAll()">✅ सभी Import करें</button>
+      <button class="btn btn-outline" onclick="go('students')">← Students पर जाएं</button>
+    </div>
+    <div style="overflow-x:auto;max-height:500px;overflow-y:auto">
+      <table class="review-table">
+        <thead><tr>
+          <th><input type="checkbox" id="chkAll" onchange="selectAllRows(this.checked)" checked></th>
+          <th>#</th><th>Status</th><th>Name ★</th><th>Class ★</th>
+          <th>Mobile</th><th>Father</th><th>Mother</th>
+          <th>Village</th><th>City</th>
+          <th>Fee ₹</th><th>Start Month</th><th>Start Year</th>
+          <th>Type</th><th>Roll No.</th>
+        </tr></thead>
+        <tbody id="reviewBody">
+          ${students.map((s,i)=>reviewRow(s,i,months,classOpts)).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function reviewRow(s,i,months,classOpts){
+  const hasErr=s._errors.length>0;
+  return`<tr id="rrow-${i}" class="${hasErr?'row-err':'row-ok'}">
+    <td><input type="checkbox" id="chk-${i}" ${hasErr?'':'checked'}></td>
+    <td style="font-weight:700;color:var(--muted)">${s._rowNum}</td>
+    <td>${hasErr?`<span class="badge b-red" title="${s._errors.join(', ')}">⚠️ Fix</span>`:`<span class="badge b-green">✅ OK</span>`}</td>
+    <td><input id="r-name-${i}" value="${s.name}" oninput="updateField(${i},'name',this.value)" style="${!s.name?'border-color:var(--danger)':''}"></td>
+    <td>
+      <select id="r-class-${i}" onchange="updateField(${i},'class',this.value);document.getElementById('r-cc-${i}').style.display=this.value==='Other'?'block':'none'">
+        <option value="">--</option>
+        ${[1,2,3,4,5,6,7,8,9,10,11,12,'Other'].map(c=>`<option value="${c}" ${s.class==c?'selected':''}>${c==='Other'?'Other':'Class '+c}</option>`).join('')}
+      </select>
+      <input id="r-cc-${i}" value="${s.customClass||''}" placeholder="Custom class..." oninput="updateField(${i},'customClass',this.value)" style="margin-top:3px;display:${s.class==='Other'?'block':'none'}">
+    </td>
+    <td><input id="r-mob-${i}" value="${s.mobile}" type="tel" oninput="updateField(${i},'mobile',this.value)" style="${s.mobile&&!/^\d{10}$/.test(s.mobile)?'border-color:var(--danger)':''}"></td>
+    <td><input id="r-fa-${i}" value="${s.fatherName}" oninput="updateField(${i},'fatherName',this.value)"></td>
+    <td><input id="r-mo-${i}" value="${s.motherName}" oninput="updateField(${i},'motherName',this.value)"></td>
+    <td><input id="r-vil-${i}" value="${s.village}" oninput="updateField(${i},'village',this.value)"></td>
+    <td><input id="r-cit-${i}" value="${s.city}" oninput="updateField(${i},'city',this.value)"></td>
+    <td><input id="r-fee-${i}" type="number" value="${s.monthlyFee}" oninput="updateField(${i},'monthlyFee',Number(this.value))"></td>
+    <td>
+      <select id="r-sm-${i}" onchange="updateField(${i},'startMonth',Number(this.value))">
+        ${MN.map((m,mi)=>`<option value="${mi+1}" ${s.startMonth==mi+1?'selected':''}>${m}</option>`).join('')}
+      </select>
+    </td>
+    <td><input id="r-sy-${i}" type="number" value="${s.startYear}" min="2020" max="2035" oninput="updateField(${i},'startYear',Number(this.value))"></td>
+    <td>
+      <select id="r-typ-${i}" onchange="updateField(${i},'type',this.value)">
+        <option value="dayscholar" ${s.type==='dayscholar'?'selected':''}>🚶 Day</option>
+        <option value="hostel" ${s.type==='hostel'?'selected':''}>🏠 Hostel</option>
+      </select>
+    </td>
+    <td><input id="r-roll-${i}" value="${s.rollNumber||''}" oninput="updateField(${i},'rollNumber',this.value)" placeholder="Roll no."></td>
+  </tr>`;
+}
+
+window.updateField=function(i,field,val){
+  if(!window.__uploadStudents)return;
+  window.__uploadStudents[i][field]=val;
+  // Re-validate
+  const s=window.__uploadStudents[i];
+  const errors=[];
+  if(!s.name)errors.push('Name missing');
+  if(!s.class)errors.push('Class missing');
+  if(s.mobile&&!/^\d{10}$/.test(s.mobile))errors.push('Mobile invalid');
+  s._errors=errors;
+  const row=document.getElementById(`rrow-${i}`);
+  const badge=row?.querySelector('.badge');
+  if(row){
+    if(errors.length){row.className='row-err';if(badge){badge.className='badge b-red';badge.textContent='⚠️ Fix';badge.title=errors.join(', ');}}
+    else{row.className='row-ok';if(badge){badge.className='badge b-green';badge.textContent='✅ OK';badge.title='';}}
+  }
+};
+
+window.selectAllRows=function(checked){
+  const students=window.__uploadStudents||[];
+  document.getElementById('chkAll').checked=checked;
+  students.forEach((_,i)=>{
+    const cb=document.getElementById(`chk-${i}`);if(cb)cb.checked=checked;
+  });
+};
+
+window.importSelected=async function(){
+  const students=window.__uploadStudents||[];
+  const selected=students.filter((_,i)=>{
+    const cb=document.getElementById(`chk-${i}`);return cb&&cb.checked;
+  });
+  if(!selected.length){toast('❌ Koi student select nahi hai!','err');return;}
+  await doImport(selected);
+};
+
+window.importAll=async function(){
+  const students=window.__uploadStudents||[];
+  await doImport(students);
+};
+
+async function doImport(students){
+  const prog=document.getElementById('uploadProgress');
+  const bar=document.getElementById('progBar');
+  const txt=document.getElementById('progText');
+  if(prog)prog.style.display='block';
+
+  let done=0,failed=0;
+  for(const s of students){
+    try{
+      const{_rowNum,_errors,_imported,...data}=s;
+      await save_('students',data.id,data);
+      done++;
+    }catch(e){failed++;console.error(e);}
+    if(bar)bar.style.width=Math.round((done+failed)/students.length*100)+'%';
+    if(txt)txt.textContent=`${done+failed}/${students.length}`;
+  }
+
+  if(prog)prog.style.display='none';
+  toast(`✅ ${done} students imported!${failed?` ${failed} failed.`:''}`, done>0?'ok':'err');
+  if(done>0)setTimeout(()=>go('students'),1500);
+}
+
+// ══════════════════════════════════════════════
+//  STUDENTS
+// ══════════════════════════════════════════════
+async function pgStudents(){
+  const sts=await getAllCached('students');
+  window.__sts=sts;
+  return`
+  <div style="display:flex;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px" class="no-print">
+    ${isDirOrOp()?`<div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="addStuModal()">➕ Add Student</button>
+      <button class="btn btn-accent" onclick="go('bulkUpload')">📤 Bulk Upload</button>
+    </div>`:'<div></div>'}
+  </div>
+  <div class="search-bar">
+    <input type="text" id="sq" placeholder="🔍 Name / Mobile / Roll No..." oninput="filterStu()">
+    <select id="fcls" onchange="filterStu()">
+      <option value="">All Classes</option>
+      ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option value="Class ${i}">Class ${i}</option>`).join('')}
+      <option value="Other">Other</option>
+    </select>
+    <select id="ftype" onchange="filterStu()">
+      <option value="">All Types</option>
+      <option value="hostel">🏠 Hostel</option>
+      <option value="dayscholar">🚶 Day Scholar</option>
+    </select>
+  </div>
+  <div class="card"><div id="stTable">${stuTable(sts)}</div></div>`;
+}
+
+window.filterStu=function(){
+  const q=(document.getElementById('sq')?.value||'').toLowerCase();
+  const cls=document.getElementById('fcls')?.value||'';
+  const typ=document.getElementById('ftype')?.value||'';
+  let r=window.__sts||[];
+  if(q)r=r.filter(s=>s.name.toLowerCase().includes(q)||(s.mobile||'').includes(q)||(s.rollNumber||'').toLowerCase().includes(q));
+  if(cls)r=r.filter(s=>clsL(s.class,s.customClass)===cls);
+  if(typ)r=r.filter(s=>s.type===typ);
+  setH('stTable',stuTable(r));
+};
+
+function stuTable(sts){
+  if(!sts.length)return`<div class="empty"><div class="ei">🎓</div><p>कोई छात्र नहीं</p></div>`;
+  return`<div class="tw"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Mobile</th><th>Roll No.</th><th>Type</th><th>Action</th></tr></thead>
+    <tbody>${sts.map((s,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        ${avH(s.name)}
+        <div><div style="font-weight:700">${s.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${[s.village,s.city].filter(Boolean).join(', ')||''}</div></div>
+      </div></td>
+      <td><span class="badge b-blue">${clsL(s.class,s.customClass)}</span></td>
+      <td>${s.mobile||'-'}</td>
+      <td>${s.rollNumber?`<span class="badge b-gold">${s.rollNumber}</span>`:'-'}</td>
+      <td><span class="badge ${s.type==='hostel'?'b-ora':'b-green'}">${s.type==='hostel'?'🏠 Hostel':'🚶 Day Scholar'}</span></td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-sm btn-primary" onclick="go('studentDetail',{id:'${s.id}'})">👁</button>
+        ${isDirOrOp()?`<button class="btn btn-sm btn-outline" onclick="editStuModal('${s.id}')">✏️</button>`:''}
+        ${isDir()?`<button class="btn btn-sm btn-danger" onclick="delStu('${s.id}')">🗑</button>`:
+          isOp()&&opCanDelete(s)?`<button class="btn btn-sm btn-danger" onclick="delStu('${s.id}')">🗑</button>`:''}
+      </div></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function stuForm(s={}){
+  const now=new Date();
+  const co=[1,2,3,4,5,6,7,8,9,10,11,12,'Other'].map(c=>`<option value="${c}" ${s.class==c?'selected':''}>${c==='Other'?'Other':'Class '+c}</option>`).join('');
+  const mo=MN.map((m,i)=>`<option value="${i+1}" ${s.startMonth==i+1?'selected':(!s.startMonth&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return`
+  <div class="fgrid">
+    <div class="fg fw"><label>Full Name ★</label><input id="sn" value="${s.name||''}" placeholder="e.g. Imtiyaz Surjapuri"></div>
+    <div class="fg"><label>Class ★</label>
+      <select id="sc" onchange="document.getElementById('ccg').style.display=this.value==='Other'?'block':'none'">
+        <option value="">-- Select --</option>${co}</select></div>
+    <div class="fg" id="ccg" style="${s.class==='Other'?'':'display:none'}">
+      <label>Custom Class</label><input id="scc" value="${s.customClass||''}" placeholder="e.g. Drawing Class"></div>
+    <div class="fg"><label>Monthly Fee ₹ ★</label><input type="number" id="smf" value="${s.monthlyFee||''}" placeholder="1500"></div>
+    <div class="fg"><label>Father's Name</label><input id="sfa" value="${s.fatherName||''}" placeholder="Father's name"></div>
+    <div class="fg"><label>Mother's Name</label><input id="smo" value="${s.motherName||''}" placeholder="Mother's name"></div>
+    <div class="fg"><label>Mobile ★</label><input type="tel" id="smob" value="${s.mobile||''}" placeholder="10-digit"></div>
+    <div class="fg"><label>Roll Number</label><input id="sroll" value="${s.rollNumber||''}" placeholder="Exam roll number"></div>
+    <div class="fg"><label>Village</label><input id="svil" value="${s.village||''}" placeholder="Village"></div>
+    <div class="fg"><label>City</label><input id="scit" value="${s.city||''}" placeholder="City"></div>
+    <div class="fg"><label>Start Month ★</label><select id="smm">${mo}</select></div>
+    <div class="fg"><label>Start Year ★</label><input type="number" id="smy" value="${s.startYear||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg fw"><label>Student Type ★</label>
+      <select id="styp">
+        <option value="dayscholar" ${s.type==='dayscholar'?'selected':''}>🚶 Day Scholar</option>
+        <option value="hostel" ${s.type==='hostel'?'selected':''}>🏠 Hostel</option>
+      </select></div>
+    <div class="fg fw"><label>Photo (Optional, max 200KB)</label>
+      <input type="file" id="sph" accept="image/*" onchange="prvPh(this,'sphp')">
+      <div id="sphp">${s.photo?`<img src="${s.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:8px">`:''}</div>
+    </div>
+  </div>
+  <div id="sErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="stuBtn" onclick="saveStu('${s.id||''}')">💾 Save</button>
+  </div>`;
+}
+
+window.addStuModal=()=>openModal('➕ Add Student',stuForm());
+window.editStuModal=async function(id){
+  openModal('✏️ Edit Student',spin_());
+  const s=await getOne('students',id);
+  setH('modalBody',s?stuForm(s):err_('Not found'));
+};
+window.prvPh=function(inp,pid){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>250000){alert('Photo 200KB se chhoti honi chahiye!');inp.value='';return;}
+  const r=new FileReader();r.onload=e=>setH(pid,`<img src="${e.target.result}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:8px">`);r.readAsDataURL(f);
+};
+window.saveStu=async function(eid){
+  const name=document.getElementById('sn').value.trim();
+  const cls=document.getElementById('sc').value;
+  const mob=document.getElementById('smob').value.trim();
+  const smm=document.getElementById('smm').value;
+  const smy=document.getElementById('smy').value;
+  const mf=document.getElementById('smf').value;
+  const er=document.getElementById('sErr');
+  if(!name||!cls||!mob||!smm||!smy||!mf){er.style.display='block';er.textContent='❌ सभी ★ fields भरें!';return;}
+  if(!/^\d{10}$/.test(mob)){er.style.display='block';er.textContent='❌ Mobile 10 digits होना चाहिए!';return;}
+  let photo='';const pi=document.querySelector('#sphp img');if(pi)photo=pi.src;
+  const btn=document.getElementById('stuBtn');btn.disabled=true;btn.textContent='💾 Saving...';
+  try{
+    const id=eid||uid_();
+    await save_('students',id,{name,class:cls,
+      customClass:document.getElementById('scc')?.value||'',
+      monthlyFee:Number(mf),
+      fatherName:document.getElementById('sfa').value.trim(),
+      motherName:document.getElementById('smo').value.trim(),
+      mobile:mob,rollNumber:document.getElementById('sroll').value.trim(),
+      village:document.getElementById('svil').value.trim(),
+      city:document.getElementById('scit').value.trim(),
+      startMonth:Number(smm),startYear:Number(smy),
+      type:document.getElementById('styp').value,...(photo?{photo}:{})});
+    clearCache('students');closeModal();toast('✅ Student saved!');go('students');
+  }catch(e){er.style.display='block';er.textContent='❌ '+e.message;btn.disabled=false;btn.textContent='💾 Save';}
+};
+window.delStu=async function(id){
+  if(!confirm('Delete this student? (All fee records will also be deleted)'))return;
+  try{
+    await del_('students',id);
+    const fes=await getAll('fees',where('studentId','==',id));
+    await Promise.all(fes.map(f=>del_('fees',f.id)));
+    clearCache('students');toast('Deleted!','info');go('students');
+  }catch(e){toast('Error: '+e.message,'err');}
+};
+
+// ══════════════════════════════════════════════
+//  STUDENT DETAIL
+// ══════════════════════════════════════════════
+async function pgStudentDetail(id){
+  const [s,fes]=await Promise.all([getOne('students',id),getAll('fees',where('studentId','==',id))]);
+  if(!s)return err_('Student not found');
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  const mc=Math.max(1,(cy-s.startYear)*12+(cm-s.startMonth)+1);
+  const td=mc*Number(s.monthlyFee||0);
+  const tp=fes.reduce((a,f)=>a+Number(f.paidAmount||0),0);
+  const bal=td-tp,adv=Math.max(0,-bal);
+  const sorted=fes.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month));
+
+  // Director-only fee section
+  const feeSectionHTML=isDir()?`
+  <div class="fee-sum">
+    <div class="fbox due"><div class="fa">${cur(td)}</div><div class="fl">Total Due</div></div>
+    <div class="fbox paid"><div class="fa">${cur(tp)}</div><div class="fl">Total Paid</div></div>
+    <div class="fbox adv"><div class="fa">${cur(adv)}</div><div class="fl">Advance</div></div>
+    <div class="fbox bal"><div class="fa">${cur(Math.max(0,bal))}</div><div class="fl">Balance</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">💰 Fee Ledger (Director Only)</div>
+      <div style="display:flex;gap:8px" class="no-print">
+        <button class="btn btn-sm btn-primary" onclick="addFeeModal('${s.id}','${s.monthlyFee||0}')">➕ Add Payment</button>
+        <button class="btn btn-sm btn-outline" onclick="printReceipt('${s.id}')">🖨️ Print</button>
+      </div>
+    </div>
+    ${!sorted.length?`<div class="empty"><div class="ei">💰</div><p>कोई payment नहीं</p></div>`:
+    `<div class="tw"><table>
+      <thead><tr><th>Month</th><th>Due</th><th>Paid</th><th>Date</th><th>Mode</th><th>Remarks</th><th></th></tr></thead>
+      <tbody>${sorted.map(f=>`<tr>
+        <td><strong>${MY(f.month,f.year)}</strong></td>
+        <td>${cur(f.dueAmount)}</td>
+        <td><span class="badge ${Number(f.paidAmount)>=Number(f.dueAmount)?'b-green':'b-red'}">${cur(f.paidAmount)}</span></td>
+        <td>${f.payDate||'-'}</td><td>${f.payMode||'-'}</td><td>${f.remarks||'-'}</td>
+        <td><div style="display:flex;gap:4px">
+          <button class="btn btn-sm btn-outline" onclick="editFeeModal('${f.id}','${s.id}','${s.monthlyFee||0}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="delFee('${f.id}','${s.id}')">🗑</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>`:'';
+
+  return`
+  <div style="margin-bottom:14px" class="no-print">
+    <button class="btn btn-outline btn-sm" onclick="go('students')">← Back</button>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+      <div>${s.photo?`<img src="${s.photo}" style="width:88px;height:88px;border-radius:14px;object-fit:cover">`:
+        `<div class="stu-av">${ini(s.name)}</div>`}</div>
+      <div style="flex:1">
+        <h2 style="font-size:20px;font-weight:900;color:var(--primary)">${s.name}</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px">
+          <span class="badge b-blue">${clsL(s.class,s.customClass)}</span>
+          <span class="badge ${s.type==='hostel'?'b-ora':'b-green'}">${s.type==='hostel'?'🏠 Hostel':'🚶 Day Scholar'}</span>
+          <span class="badge b-gold">Since ${MY(s.startMonth,s.startYear)}</span>
+          ${s.rollNumber?`<span class="badge b-gold">🔢 Roll: ${s.rollNumber}</span>`:''}
+        </div>
+        <div class="info-row">
+          ${[['Father',s.fatherName],['Mother',s.motherName],['Mobile',s.mobile],
+             ['Village',s.village],['City',s.city],['Monthly Fee',isDir()?cur(s.monthlyFee):'—']]
+            .map(([l,v])=>`<div class="ii"><div class="il">${l}</div><div class="iv">${v||'-'}</div></div>`).join('')}
+        </div>
+      </div>
+      ${isDirOrOp()?`<button class="btn btn-sm btn-outline no-print" onclick="editStuModal('${s.id}')">✏️ Edit</button>`:''}
+    </div>
+  </div>
+  ${feeSectionHTML}`;
+}
+
+// ══════════════════════════════════════════════
+//  FEES
+// ══════════════════════════════════════════════
+function feeForm(sid,df,f={}){
+  const now=new Date(),nm=now.getMonth()+1,ny=now.getFullYear();
+  const mo=MN.map((m,i)=>`<option value="${i+1}" ${f.month==i+1?'selected':(!f.month&&nm==i+1?'selected':'')}>${m}</option>`).join('');
+  return`
+  <div class="fgrid">
+    <div class="fg"><label>Month ★</label><select id="fm">${mo}</select></div>
+    <div class="fg"><label>Year ★</label><input type="number" id="fy" value="${f.year||ny}" min="2020" max="2035"></div>
+    <div class="fg"><label>Due ₹ ★</label><input type="number" id="fd" value="${f.dueAmount||df||''}" placeholder="Due"></div>
+    <div class="fg"><label>Paid ₹ ★</label><input type="number" id="fp" value="${f.paidAmount||''}" placeholder="Paid"></div>
+    <div class="fg"><label>Date</label><input type="date" id="fdt" value="${f.payDate||now.toISOString().split('T')[0]}"></div>
+    <div class="fg"><label>Mode</label>
+      <select id="fpm">
+        <option value="Cash" ${f.payMode==='Cash'?'selected':''}>💵 Cash</option>
+        <option value="Online" ${f.payMode==='Online'?'selected':''}>📱 Online</option>
+        <option value="Cheque" ${f.payMode==='Cheque'?'selected':''}>🏦 Cheque</option>
+      </select></div>
+    <div class="fg fw"><label>Remarks</label><input id="fr" value="${f.remarks||''}" placeholder="Optional"></div>
+  </div>
+  <div id="fErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="feeBtn" onclick="saveFee('${f.id||''}','${sid}')">💾 Save</button>
+  </div>`;
+}
+window.addFeeModal=(sid,df)=>openModal('➕ Add Payment',feeForm(sid,df));
+window.editFeeModal=async function(fid,sid,df){openModal('✏️ Edit Fee',spin_());const f=await getOne('fees',fid);setH('modalBody',f?feeForm(sid,df,f):err_('Not found'));};
+window.saveFee=async function(eid,sid){
+  const m=document.getElementById('fm').value,y=document.getElementById('fy').value;
+  const d=document.getElementById('fd').value,p=document.getElementById('fp').value;
+  const er=document.getElementById('fErr');
+  if(!m||!y||!d||!p){er.style.display='block';er.textContent='❌ सभी ★ fields भरें!';return;}
+  const btn=document.getElementById('feeBtn');btn.disabled=true;btn.textContent='💾 Saving...';
+  try{
+    await save_('fees',eid||uid_(),{studentId:sid,month:Number(m),year:Number(y),
+      dueAmount:Number(d),paidAmount:Number(p),
+      payDate:document.getElementById('fdt').value,
+      payMode:document.getElementById('fpm').value,
+      remarks:document.getElementById('fr').value.trim()});
+    clearCache('fees');closeModal();toast('✅ Payment saved!');go('studentDetail',{id:sid});
+  }catch(e){er.style.display='block';er.textContent='❌ '+e.message;btn.disabled=false;btn.textContent='💾 Save';}
+};
+window.delFee=async function(fid,sid){
+  if(!confirm('Delete?'))return;await del_('fees',fid);toast('Deleted!','info');go('studentDetail',{id:sid});
+};
+window.printReceipt=async function(sid){
+  const[s,fes]=await Promise.all([getOne('students',sid),getAll('fees',where('studentId','==',sid))]);
+  if(!s)return;
+  const sorted=fes.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month));
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  const mc=Math.max(1,(cy-s.startYear)*12+(cm-s.startMonth)+1);
+  const td=mc*Number(s.monthlyFee||0),tp=sorted.reduce((a,f)=>a+Number(f.paidAmount||0),0),bal=td-tp;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>Receipt</title>
+  <style>body{font-family:Arial;padding:20px}h1,h2{color:#1a237e;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:12px 0}th{background:#1a237e;color:#fff;padding:9px;text-align:left}td{padding:9px;border:1px solid #ddd}
+  .sum{display:flex;gap:12px;margin:14px 0}.sb{flex:1;border:2px solid #ddd;padding:10px;border-radius:8px;text-align:center}.sv{font-size:20px;font-weight:900}</style></head>
+  <body><h1>${INST}</h1><h2>Fee Receipt</h2><p style="text-align:center">Date: ${new Date().toLocaleDateString('en-IN')}</p><hr>
+  <table><tr><td><b>Student:</b></td><td>${s.name}</td><td><b>Class:</b></td><td>${clsL(s.class,s.customClass)}</td></tr>
+  <tr><td><b>Roll No:</b></td><td>${s.rollNumber||'-'}</td><td><b>Mobile:</b></td><td>${s.mobile||'-'}</td></tr>
+  <tr><td><b>Father:</b></td><td>${s.fatherName||'-'}</td><td><b>Village/City:</b></td><td>${[s.village,s.city].filter(Boolean).join(', ')||'-'}</td></tr></table>
+  <div class="sum">
+    <div class="sb"><div class="sv">₹${td.toLocaleString('en-IN')}</div><div>Total Due</div></div>
+    <div class="sb"><div class="sv">₹${tp.toLocaleString('en-IN')}</div><div>Total Paid</div></div>
+    <div class="sb"><div class="sv">₹${Math.abs(bal).toLocaleString('en-IN')}</div><div>${bal>0?'Balance':'Advance'}</div></div>
+  </div>
+  <table><thead><tr><th>Month</th><th>Due</th><th>Paid</th><th>Date</th><th>Mode</th><th>Remarks</th></tr></thead>
+  <tbody>${sorted.map(f=>`<tr><td>${MY(f.month,f.year)}</td><td>₹${Number(f.dueAmount).toLocaleString('en-IN')}</td>
+  <td>₹${Number(f.paidAmount).toLocaleString('en-IN')}</td><td>${f.payDate||'-'}</td><td>${f.payMode||'-'}</td><td>${f.remarks||'-'}</td></tr>`).join('')}
+  </tbody></table></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+};
+
+// ══════════════════════════════════════════════
+//  HOSTEL
+// ══════════════════════════════════════════════
+async function pgHostel(){
+  const sts=await getAll('students',where('type','==','hostel'));
+  return`<div class="card"><div class="card-hd"><div class="card-title">🏠 Hostel Students (${sts.length})</div></div>
+  ${!sts.length?`<div class="empty"><div class="ei">🏠</div><p>कोई Hostel Student नहीं</p></div>`:
+  `<div class="tw"><table><thead><tr><th>#</th><th>Name</th><th>Class</th><th>Mobile</th><th>Village/City</th><th>Since</th><th></th></tr></thead>
+  <tbody>${sts.map((s,i)=>`<tr><td>${i+1}</td>
+    <td><div style="display:flex;align-items:center;gap:9px">${avH(s.name)}<strong>${s.name}</strong></div></td>
+    <td><span class="badge b-blue">${clsL(s.class,s.customClass)}</span></td>
+    <td>${s.mobile||'-'}</td><td>${[s.village,s.city].filter(Boolean).join(', ')||'-'}</td>
+    <td>${MY(s.startMonth,s.startYear)}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="go('studentDetail',{id:'${s.id}'})">👁</button></td>
+  </tr>`).join('')}</tbody></table></div>`}</div>`;
+}
+
+// ══════════════════════════════════════════════
+//  COMPETITION EXAMS (Director Only)
+// ══════════════════════════════════════════════
+async function pgCompetition(){
+  if(!isDirOrOp())return err_('Access Denied');
+  const[exams,students]=await Promise.all([getAll('competitions'),getAll('students')]);
+  return`
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px" class="no-print">
+    ${isDir()?`<button class="btn btn-primary" onclick="addExamModal()">➕ Add Competition Exam</button>`:''}
+  </div>
+  ${!exams.length?`<div class="card"><div class="empty"><div class="ei">🏆</div><p>कोई Competition Exam नहीं। Add करें।</p></div></div>`:
+  `<div style="display:grid;gap:16px">
+    ${exams.map(ex=>`
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="card-title">🏆 ${ex.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">
+            ${ex.date||''} ${ex.description?'• '+ex.description:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px" class="no-print">
+          <button class="btn btn-sm btn-primary" onclick="viewExamResults('${ex.id}')">📊 Results</button>
+          ${isDirOrOp()?`<button class="btn btn-sm btn-accent" onclick="addResultModal('${ex.id}')">➕ Add Result</button>`:''}
+          ${isDir()?`<button class="btn btn-sm btn-danger" onclick="delExam('${ex.id}')">🗑</button>`:''}
+        </div>
+      </div>
+      <div id="exam-summary-${ex.id}" class="exam-summary"></div>
+    </div>`).join('')}
+  </div>`}`;
+}
+
+window.addExamModal=function(){
+  openModal('➕ Add Competition Exam',`
+  <div class="fgrid">
+    <div class="fg fw"><label>Exam Name ★</label><input id="en" placeholder="e.g. NTSE 2024, Bihar Board Pre Exam"></div>
+    <div class="fg"><label>Date</label><input type="date" id="ed"></div>
+    <div class="fg"><label>Organizer</label><input id="eorg" placeholder="e.g. CBSE, State Board"></div>
+    <div class="fg fw"><label>Description</label><input id="edesc" placeholder="Short description..."></div>
+  </div>
+  <div id="exErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveExam()">💾 Save Exam</button>
+  </div>`);
+};
+
+window.saveExam=async function(){
+  const name=document.getElementById('en').value.trim();
+  const er=document.getElementById('exErr');
+  if(!name){er.style.display='block';er.textContent='❌ Exam name required!';return;}
+  await save_('competitions',uid_(),{
+    name,date:document.getElementById('ed').value,
+    organizer:document.getElementById('eorg').value.trim(),
+    description:document.getElementById('edesc').value.trim()
+  });
+  closeModal();toast('✅ Exam added!');go('competition');
+};
+
+window.delExam=async function(id){
+  if(!confirm('Delete this exam and all its results?'))return;
+  await del_('competitions',id);
+  const results=await getAll('compResults',where('examId','==',id));
+  await Promise.all(results.map(r=>del_('compResults',r.id)));
+  toast('Deleted!','info');go('competition');
+};
+
+window.addResultModal=async function(examId){
+  const students=await getAll('students');
+  const exam=await getOne('competitions',examId);
+  openModal(`➕ Add Result — ${exam?.name||''}`,`
+  <div class="alert a-info" style="margin-bottom:14px">
+    Student ka Roll Number main data se automatically fill hoga अगर वो student database में है।
+  </div>
+  <div class="fgrid">
+    <div class="fg fw"><label>Student Name / Roll No से Search ★</label>
+      <input id="rstu" placeholder="Student name ya roll number type karein..." oninput="searchStudentForResult(this.value,'${examId}')">
+      <div id="rstu-list" style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;display:none;margin-top:4px"></div>
+      <input type="hidden" id="rstu-id">
+    </div>
+    <div class="fg"><label>Student Name</label><input id="rname" placeholder="Auto-fill or type"></div>
+    <div class="fg"><label>Roll Number</label><input id="rroll" placeholder="Auto-fill or type"></div>
+    <div class="fg"><label>Class</label>
+      <select id="rcls">
+        <option value="">-- Select --</option>
+        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option>Class ${i}</option>`).join('')}
+        <option>Other</option>
+      </select></div>
+    <div class="fg"><label>Marks Obtained</label><input type="number" id="rmarks" placeholder="e.g. 85"></div>
+    <div class="fg"><label>Total Marks</label><input type="number" id="rtotal" placeholder="e.g. 100"></div>
+    <div class="fg"><label>Rank / Position</label><input id="rrank" placeholder="e.g. 1st, 3rd, Top 10"></div>
+    <div class="fg"><label>Result</label>
+      <select id="rresult">
+        <option value="pass">✅ Pass / Selected</option>
+        <option value="fail">❌ Fail / Not Selected</option>
+        <option value="merit">🥇 Merit List</option>
+        <option value="pending">⏳ Pending / Awaited</option>
+      </select></div>
+    <div class="fg"><label>Exam Fee ₹</label><input type="number" id="rexamfee" placeholder="e.g. 500"></div>
+    <div class="fg"><label>Fee Status</label>
+      <select id="rfeestatus">
+        <option value="paid">✅ Paid</option>
+        <option value="unpaid">❌ Unpaid</option>
+        <option value="waived">🎁 Waived</option>
+      </select></div>
+    <div class="fg fw"><label>Remarks</label><input id="rremarks" placeholder="Any note..."></div>
+  </div>
+  <div id="rErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveResult('${examId}')">💾 Save Result</button>
+  </div>`);
+  window.__resultStudents=students;
+};
+
+window.searchStudentForResult=function(q,examId){
+  const list=document.getElementById('rstu-list');
+  if(!q||q.length<2){list.style.display='none';return;}
+  const sts=(window.__resultStudents||[]).filter(s=>
+    s.name.toLowerCase().includes(q.toLowerCase())||(s.rollNumber||'').includes(q)
+  ).slice(0,8);
+  if(!sts.length){list.style.display='none';return;}
+  list.style.display='block';
+  list.innerHTML=sts.map(s=>`
+    <div style="padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px"
+      onclick="selectStudentForResult('${s.id}','${s.name.replace(/'/g,"\\'")}','${s.rollNumber||''}','${clsL(s.class,s.customClass)}')">
+      <strong>${s.name}</strong> — ${clsL(s.class,s.customClass)}
+      ${s.rollNumber?`<span class="badge b-gold" style="margin-left:6px">Roll: ${s.rollNumber}</span>`:''}
+    </div>`).join('');
+};
+
+window.selectStudentForResult=function(id,name,roll,cls){
+  document.getElementById('rstu-id').value=id;
+  document.getElementById('rstu').value=name;
+  document.getElementById('rname').value=name;
+  if(roll)document.getElementById('rroll').value=roll;
+  // Set class
+  const clsSel=document.getElementById('rcls');
+  Array.from(clsSel.options).forEach(o=>{if(o.value===cls||o.text===cls)clsSel.value=o.value;});
+  document.getElementById('rstu-list').style.display='none';
+};
+
+window.saveResult=async function(examId){
+  const name=document.getElementById('rname').value.trim();
+  const er=document.getElementById('rErr');
+  if(!name){er.style.display='block';er.textContent='❌ Student name required!';return;}
+  await save_('compResults',uid_(),{
+    examId,
+    studentId:document.getElementById('rstu-id').value||null,
+    studentName:name,
+    rollNumber:document.getElementById('rroll').value.trim(),
+    class:document.getElementById('rcls').value,
+    marks:Number(document.getElementById('rmarks').value)||null,
+    totalMarks:Number(document.getElementById('rtotal').value)||null,
+    rank:document.getElementById('rrank').value.trim(),
+    result:document.getElementById('rresult').value,
+    examFee:Number(document.getElementById('rexamfee').value)||null,
+    feeStatus:document.getElementById('rfeestatus').value,
+    remarks:document.getElementById('rremarks').value.trim()
+  });
+  closeModal();toast('✅ Result saved!');go('competition');
+};
+
+window.viewExamResults=async function(examId){
+  const[exam,results]=await Promise.all([getOne('competitions',examId),getAll('compResults',where('examId','==',examId))]);
+  if(!exam)return;
+  const resultBadge={pass:'cb-pass',fail:'cb-fail',merit:'cb-gold',pending:'b-ora'};
+  const resultLabel={pass:'✅ Pass',fail:'❌ Fail',merit:'🥇 Merit',pending:'⏳ Pending'};
+  openModal(`📊 Results — ${exam.name}`,`
+  <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="badge b-blue">${results.length} Students</span>
+    <span class="badge cb-pass">${results.filter(r=>r.result==='pass').length} Pass</span>
+    <span class="badge cb-gold">${results.filter(r=>r.result==='merit').length} Merit</span>
+    <span class="badge cb-fail">${results.filter(r=>r.result==='fail').length} Fail</span>
+    <button class="btn btn-sm btn-outline no-print" onclick="addResultModal('${examId}')">➕ Add More</button>
+    <button class="btn btn-sm btn-outline no-print" onclick="printExamResults('${examId}')">🖨️ Print</button>
+  </div>
+  ${!results.length?`<div class="empty"><div class="ei">📊</div><p>कोई result नहीं</p></div>`:
+  `<div class="tw"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Roll No.</th><th>Class</th><th>Marks</th><th>Rank</th><th>Exam Fee</th><th>Result</th><th></th></tr></thead>
+    <tbody>${results.map((r,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><strong>${r.studentName}</strong></td>
+      <td>${r.rollNumber||'-'}</td>
+      <td>${r.class||'-'}</td>
+      <td>${r.marks!=null?`${r.marks}${r.totalMarks?'/'+r.totalMarks:''}`:'-'}</td>
+      <td>${r.rank||'-'}</td>
+      <td>${r.examFee?`<span class="badge ${r.feeStatus==='paid'?'b-green':r.feeStatus==='waived'?'b-gold':'b-red'}">${cur(r.examFee)} ${r.feeStatus||''}</span>`:'-'}</td>
+      <td><span class="comp-badge ${resultBadge[r.result]||'b-blue'}">${resultLabel[r.result]||r.result}</span></td>
+      <td><button class="btn btn-sm btn-danger" onclick="delResult('${r.id}','${examId}')">🗑</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`}`);
+};
+
+window.delResult=async function(id,examId){
+  if(!confirm('Delete?'))return;await del_('compResults',id);toast('Deleted!','info');viewExamResults(examId);};
+
+window.printExamResults=async function(examId){
+  const[exam,results]=await Promise.all([getOne('competitions',examId),getAll('compResults',where('examId','==',examId))]);
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>${exam?.name}</title>
+  <style>body{font-family:Arial;padding:20px}h1,h2,h3{color:#1a237e;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:12px 0}th{background:#1a237e;color:#fff;padding:9px;text-align:left}td{padding:9px;border:1px solid #ddd}</style></head>
+  <body><h1>${INST}</h1><h2>${exam?.name||''}</h2><h3>${exam?.date||''}</h3>
+  <table><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Class</th><th>Marks</th><th>Rank</th><th>Result</th></tr></thead>
+  <tbody>${results.map((r,i)=>`<tr><td>${i+1}</td><td>${r.studentName}</td><td>${r.rollNumber||'-'}</td>
+  <td>${r.class||'-'}</td><td>${r.marks!=null?r.marks+(r.totalMarks?'/'+r.totalMarks:''):'-'}</td>
+  <td>${r.rank||'-'}</td><td>${r.result}</td></tr>`).join('')}</tbody></table>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+};
+
+// ══════════════════════════════════════════════
+//  TEACHERS
+// ══════════════════════════════════════════════
+async function pgTeachers(){
+  if(!isDir())return err_('Access Denied');
+  const tch=await getAll('teachers');
+  return`
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px" class="no-print">
+    <button class="btn btn-primary" onclick="addTchModal()">➕ Add Teacher</button>
+  </div>
+  <div class="card">
+    ${!tch.length?`<div class="empty"><div class="ei">👩‍🏫</div><p>कोई Teacher नहीं</p></div>`:
+    `<div class="tw"><table>
+      <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Designation</th><th>Classes</th><th>Joined</th><th>Action</th></tr></thead>
+      <tbody>${tch.map((t,i)=>`<tr>
+        <td>${i+1}</td>
+        <td><div style="display:flex;align-items:center;gap:9px">
+          ${avH(t.name)}
+          <div><div style="font-weight:700">${t.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${[t.village,t.city].filter(Boolean).join(', ')||''}</div></div>
+        </div></td>
+        <td>${t.mobile||'-'}</td><td>${t.designation||'-'}</td><td>${t.classes||'-'}</td><td>${MY(t.joinMonth,t.joinYear)}</td>
+        <td><div style="display:flex;gap:5px">
+          <button class="btn btn-sm btn-primary" onclick="go('teacherDetail',{id:'${t.id}'})">👁</button>
+          <button class="btn btn-sm btn-outline" onclick="editTchModal('${t.id}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="delTch('${t.id}')">🗑</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>`;
+}
+
+function tchForm(t={}){
+  const now=new Date();
+  const mo=MN.map((m,i)=>`<option value="${i+1}" ${t.joinMonth==i+1?'selected':(!t.joinMonth&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return`
+  <div class="fgrid">
+    <div class="fg fw"><label>Full Name ★</label><input id="tn" value="${t.name||''}" placeholder="Teacher's full name"></div>
+    <div class="fg"><label>Email ★ (Login ID)</label><input type="email" id="temail" value="${t.email||''}" placeholder="teacher@gmail.com" ${t.id?'readonly style="background:#f5f5f5"':''}></div>
+    ${!t.id?`<div class="fg"><label>Password ★</label><input type="password" id="tpass" value="teacher@123"></div>`:'<div class="fg"></div>'}
+    <div class="fg"><label>Mobile ★</label><input type="tel" id="tm" value="${t.mobile||''}" placeholder="10-digit"></div>
+    <div class="fg"><label>Designation</label><input id="tdes" value="${t.designation||''}" placeholder="e.g. Maths Teacher"></div>
+    <div class="fg"><label>Village</label><input id="tvil" value="${t.village||''}" placeholder="Village"></div>
+    <div class="fg"><label>City</label><input id="tcit" value="${t.city||''}" placeholder="City"></div>
+    <div class="fg fw"><label>Classes Assigned</label><input id="tcls" value="${t.classes||''}" placeholder="e.g. Class 9, Class 10"></div>
+    <div class="fg"><label>Joining Month ★</label><select id="tjm">${mo}</select></div>
+    <div class="fg"><label>Joining Year ★</label><input type="number" id="tjy" value="${t.joinYear||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg"><label>Monthly Salary ₹</label><input type="number" id="tmsal" value="${t.monthlySalary||''}" placeholder="e.g. 12000"></div>
+    <div class="fg"><label>Previous Year Pending ₹</label><input type="number" id="tprev" value="${t.prevYearPending||0}" placeholder="0"></div>
+  </div>
+  <div id="tErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="tchBtn" onclick="saveTch('${t.id||''}','${t.uid||''}')">💾 Save Teacher</button>
+  </div>`;
+}
+window.addTchModal=()=>openModal('➕ Add Teacher',tchForm());
+window.editTchModal=async function(id){openModal('✏️ Edit Teacher',spin_());const t=await getOne('teachers',id);setH('modalBody',t?tchForm(t):err_('Not found'));};
+window.saveTch=async function(eid,existUid){
+  const name=document.getElementById('tn').value.trim();
+  const email=document.getElementById('temail').value.trim();
+  const mob=document.getElementById('tm').value.trim();
+  const jm=document.getElementById('tjm').value;
+  const jy=document.getElementById('tjy').value;
+  const er=document.getElementById('tErr');
+  if(!name||!email||!mob||!jm||!jy){er.style.display='block';er.textContent='❌ Required ★ fields भरें!';return;}
+  if(!/^\d{10}$/.test(mob)){er.style.display='block';er.textContent='❌ Mobile 10 digits!';return;}
+  const btn=document.getElementById('tchBtn');btn.disabled=true;btn.textContent='💾 Saving...';
+  try{
+    let fireUid=existUid;
+    if(!eid){
+      const pass=document.getElementById('tpass').value||'teacher@123';
+      const cred=await createUserWithEmailAndPassword(auth,email,pass);
+      fireUid=cred.user.uid;
+      await save_('users',fireUid,{name,email,role:'teacher'});
+    }
+    const tid=eid||uid_();
+    await save_('teachers',tid,{name,email,uid:fireUid,mobile:mob,
+      designation:document.getElementById('tdes').value.trim(),
+      village:document.getElementById('tvil').value.trim(),
+      city:document.getElementById('tcit').value.trim(),
+      classes:document.getElementById('tcls').value.trim(),
+      joinMonth:Number(jm),joinYear:Number(jy),
+      monthlySalary:Number(document.getElementById('tmsal').value)||0,
+      prevYearPending:Number(document.getElementById('tprev').value)||0});
+    closeModal();
+    if(!eid)alert(`✅ Teacher Added!\nEmail: ${email}\nPassword: teacher@123`);
+    else toast('✅ Teacher updated!');
+    go('teachers');
+  }catch(e){er.style.display='block';er.textContent='❌ '+e.message;btn.disabled=false;btn.textContent='💾 Save Teacher';}
+};
+window.delTch=async function(id){
+  if(!confirm('Delete teacher?'))return;
+  try{
+    const t=await getOne('teachers',id);await del_('teachers',id);
+    const sals=await getAll('salaries',where('teacherId','==',id));
+    await Promise.all(sals.map(s=>del_('salaries',s.id)));
+    if(t?.uid)await del_('users',t.uid);
+    toast('Deleted!','info');go('teachers');
+  }catch(e){toast('Error: '+e.message,'err');}
+};
+
+// ══════════════════════════════════════════════
+//  TEACHER DETAIL
+// ══════════════════════════════════════════════
+async function pgTeacherDetail(id){
+  if(!isDir())return err_('Access Denied');
+  const[t,sals]=await Promise.all([getOne('teachers',id),getAll('salaries',where('teacherId','==',id))]);
+  if(!t)return err_('Teacher not found');
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  const monthlySalary=Number(t.monthlySalary||0);
+  const totPaid=sals.filter(s=>s.status==='paid'||!s.status).reduce((a,s)=>a+Number(s.amount||0),0);
+  const totAdv=sals.filter(s=>s.status==='advance').reduce((a,s)=>a+Number(s.amount||0),0);
+  // Calculate pending months (from join to now)
+  const joinM=Number(t.joinMonth||1),joinY=Number(t.joinYear||cy);
+  const totalMonths=Math.max(0,(cy-joinY)*12+(cm-joinM)+1);
+  const prevYearPending=Number(t.prevYearPending||0);
+  const totalExpected=totalMonths*monthlySalary+prevYearPending;
+  const netPending=Math.max(0,totalExpected-totPaid);
+
+  // Month-wise salary grid
+  const salByKey={};
+  sals.forEach(s=>{salByKey[`${s.year}-${String(s.month).padStart(2,'0')}`]=s;});
+
+  // Last 12 months
+  const months12=[];
+  for(let i=0;i<12;i++){
+    let m=cm-i,y=cy;if(m<=0){m+=12;y--;}
+    months12.push({m,y,key:`${y}-${String(m).padStart(2,'0')}`});
+  }
+
+  return`
+  <div style="margin-bottom:14px" class="no-print"><button class="btn btn-outline btn-sm" onclick="go('teachers')">← Back</button></div>
+  <div class="card" style="margin-bottom:18px">
+    <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+      <div class="stu-av">${ini(t.name)}</div>
+      <div style="flex:1">
+        <h2 style="font-size:20px;font-weight:900;color:var(--primary)">${t.name}</h2>
+        <div style="margin-top:6px"><span class="badge b-blue">${t.designation||'Teacher'}</span></div>
+        <div class="info-row">
+          ${[['Mobile',t.mobile],['Email',t.email],['Village',t.village],['City',t.city],
+             ['Classes',t.classes],['Joined',MY(t.joinMonth,t.joinYear)]]
+            .map(([l,v])=>`<div class="ii"><div class="il">${l}</div><div class="iv">${v||'-'}</div></div>`).join('')}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline no-print" onclick="editTchModal('${t.id}')">✏️</button>
+    </div>
+  </div>
+
+  <!-- Salary Summary Cards -->
+  <div class="fee-sum" style="margin-bottom:18px">
+    <div class="fbox due"><div class="fa">${cur(monthlySalary)}</div><div class="fl">Monthly Salary</div></div>
+    <div class="fbox paid"><div class="fa">${cur(totPaid)}</div><div class="fl">Total Paid</div></div>
+    <div class="fbox adv"><div class="fa">${cur(totAdv)}</div><div class="fl">Advance Paid</div></div>
+    <div class="fbox bal"><div class="fa">${cur(netPending)}</div><div class="fl">Net Pending</div></div>
+  </div>
+
+  ${prevYearPending>0?`<div class="alert a-warn" style="margin-bottom:16px">⚠️ Previous Year Pending Salary: <strong>${cur(prevYearPending)}</strong></div>`:''}
+
+  <!-- Month-wise Salary Grid -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-hd">
+      <div class="card-title">📅 Last 12 Months Status</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm btn-primary" onclick="addSalModal('${t.id}')">➕ Add Payment</button>
+        <button class="btn btn-sm btn-outline" onclick="setMonthSalModal('${t.id}','${monthlySalary}')">⚙️ Set Monthly Salary</button>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Month</th><th>Expected</th><th>Status</th><th>Paid Amount</th><th>Date</th><th>Remarks</th><th></th></tr></thead>
+      <tbody>${months12.map(({m,y,key})=>{
+        const s=salByKey[key];
+        const expected=monthlySalary;
+        let statusBadge,statusClass;
+        if(!s||s.status==='unpaid'){statusBadge='❌ Unpaid';statusClass='ss-unpaid';}
+        else if(s.status==='advance'){statusBadge='🔼 Advance';statusClass='ss-advance';}
+        else if(Number(s.amount)>=expected&&expected>0){statusBadge='✅ Paid';statusClass='ss-paid';}
+        else if(Number(s.amount||0)>0){statusBadge='⚠️ Partial';statusClass='ss-partial';}
+        else{statusBadge='❌ Unpaid';statusClass='ss-unpaid';}
+        return`<tr class="${s&&(s.status!=='unpaid')?(s.status==='advance'?'sal-row-adv':'sal-row-paid'):'sal-row-unpaid'}">
+          <td><strong>${MY(m,y)}</strong></td>
+          <td>${cur(expected)}</td>
+          <td><span class="sal-status ${statusClass}">${statusBadge}</span></td>
+          <td>${s?cur(s.amount):'-'}</td>
+          <td>${s?.paidDate||'-'}</td>
+          <td>${s?.remarks||'-'}</td>
+          <td><div style="display:flex;gap:4px">
+            ${s?`<button class="btn btn-sm btn-outline" onclick="editSalModal('${s.id}','${t.id}')">✏️</button>
+                 <button class="btn btn-sm btn-danger" onclick="delSal('${s.id}','${t.id}')">🗑</button>`
+              :`<button class="btn btn-sm btn-success btn-sm" onclick="quickPay('${t.id}',${m},${y},${expected})">💳 Pay</button>`}
+          </div></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- All Salary Records -->
+  <div class="card">
+    <div class="card-hd"><div class="card-title">💼 All Payment Records</div></div>
+    ${!sals.length?`<div class="empty"><div class="ei">💼</div><p>कोई salary record नहीं</p></div>`:
+    `<div class="tw"><table><thead><tr><th>Month</th><th>Amount</th><th>Type</th><th>Date</th><th>Remarks</th><th></th></tr></thead>
+    <tbody>${sals.sort((a,b)=>b.year*100+b.month-(a.year*100+a.month)).map(s=>`<tr>
+      <td><strong>${MY(s.month,s.year)}</strong></td>
+      <td><span class="badge b-green">${cur(s.amount)}</span></td>
+      <td><span class="sal-status ${s.status==='advance'?'ss-advance':s.status==='unpaid'?'ss-unpaid':'ss-paid'}">${s.status==='advance'?'🔼 Advance':s.status==='unpaid'?'❌ Unpaid':'✅ Paid'}</span></td>
+      <td>${s.paidDate||'-'}</td><td>${s.remarks||'-'}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-sm btn-outline" onclick="editSalModal('${s.id}','${t.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="delSal('${s.id}','${t.id}')">🗑</button>
+      </div></td>
+    </tr>`).join('')}</tbody></table></div>`}
+  </div>`;
+}
+
+window.setMonthSalModal=function(tid,current){
+  openModal('⚙️ Set Monthly Salary',`
+  <div class="fg"><label>Monthly Salary ₹ ★</label>
+    <input type="number" id="msal" value="${current}" placeholder="e.g. 12000"></div>
+  <div class="fg"><label>Previous Year Pending ₹ (if any)</label>
+    <input type="number" id="prevpend" placeholder="0"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveMonthSal('${tid}')">💾 Save</button>
+  </div>`);
+};
+window.saveMonthSal=async function(tid){
+  const msal=Number(document.getElementById('msal').value)||0;
+  const prev=Number(document.getElementById('prevpend').value)||0;
+  await save_('teachers',tid,{monthlySalary:msal,prevYearPending:prev});
+  clearCache('teachers');
+  closeModal();toast('✅ Salary settings saved!');go('teacherDetail',{id:tid});
+};
+
+window.quickPay=function(tid,month,year,amount){
+  openModal(`💳 Quick Pay — ${MY(month,year)}`,`
+  <div class="fg"><label>Amount ₹ ★</label><input type="number" id="qpa" value="${amount}" placeholder="Amount"></div>
+  <div class="fg"><label>Payment Date</label><input type="date" id="qpd" value="${new Date().toISOString().split('T')[0]}"></div>
+  <div class="fg"><label>Type</label>
+    <select id="qpt">
+      <option value="paid">✅ Salary Paid</option>
+      <option value="advance">🔼 Advance Payment</option>
+      <option value="partial">⚠️ Partial Payment</option>
+    </select></div>
+  <div class="fg"><label>Remarks</label><input id="qpr" placeholder="Optional"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="doQuickPay('${tid}',${month},${year})">💳 Mark as Paid</button>
+  </div>`);
+};
+window.doQuickPay=async function(tid,month,year){
+  const amount=Number(document.getElementById('qpa').value)||0;
+  if(!amount){alert('Amount daalein');return;}
+  await save_('salaries',uid_(),{
+    teacherId:tid,month:Number(month),year:Number(year),
+    amount,status:document.getElementById('qpt').value,
+    paidDate:document.getElementById('qpd').value,
+    remarks:document.getElementById('qpr').value.trim()
+  });
+  closeModal();toast('✅ Payment recorded!');go('teacherDetail',{id:tid});
+};
+
+function salForm(tid,s={}){
+  const now=new Date();
+  const mo=MN.map((m,i)=>`<option value="${i+1}" ${s.month==i+1?'selected':(!s.month&&i===now.getMonth()?'selected':'')}>${m}</option>`).join('');
+  return`
+  <div class="fgrid">
+    <div class="fg"><label>Month ★</label><select id="sm">${mo}</select></div>
+    <div class="fg"><label>Year ★</label><input type="number" id="sy" value="${s.year||now.getFullYear()}" min="2020" max="2035"></div>
+    <div class="fg"><label>Amount ₹ ★</label><input type="number" id="sa" value="${s.amount||''}" placeholder="e.g. 12000"></div>
+    <div class="fg"><label>Payment Type</label>
+      <select id="sst">
+        <option value="paid" ${(s.status||'paid')==='paid'?'selected':''}>✅ Salary Paid</option>
+        <option value="advance" ${s.status==='advance'?'selected':''}>🔼 Advance Payment</option>
+        <option value="partial" ${s.status==='partial'?'selected':''}>⚠️ Partial Payment</option>
+        <option value="unpaid" ${s.status==='unpaid'?'selected':''}>❌ Mark Unpaid</option>
+      </select></div>
+    <div class="fg"><label>Date Paid</label><input type="date" id="spd" value="${s.paidDate||now.toISOString().split('T')[0]}"></div>
+    <div class="fg fw"><label>Remarks</label><input id="sr" value="${s.remarks||''}" placeholder="Optional"></div>
+  </div>
+  <div id="sErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="salBtn" onclick="saveSal('${s.id||''}','${tid}')">💾 Save</button>
+  </div>`;
+}
+window.addSalModal=tid=>openModal('➕ Add Salary',salForm(tid));
+window.editSalModal=async function(sid,tid){openModal('✏️ Edit Salary',spin_());const s=await getOne('salaries',sid);setH('modalBody',s?salForm(tid,s):err_('Not found'));};
+window.saveSal=async function(eid,tid){
+  const m=document.getElementById('sm').value,y=document.getElementById('sy').value,a=document.getElementById('sa').value;
+  const er=document.getElementById('sErr');
+  if(!m||!y||!a){er.style.display='block';er.textContent='❌ Required fields भरें!';return;}
+  const btn=document.getElementById('salBtn');btn.disabled=true;btn.textContent='💾 Saving...';
+  try{
+    await save_('salaries',eid||uid_(),{teacherId:tid,month:Number(m),year:Number(y),amount:Number(a),
+      status:document.getElementById('sst').value,
+      paidDate:document.getElementById('spd').value,remarks:document.getElementById('sr').value.trim()});
+    closeModal();toast('✅ Salary saved!');go('teacherDetail',{id:tid});
+  }catch(e){er.style.display='block';er.textContent='❌ '+e.message;btn.disabled=false;btn.textContent='💾 Save';}
+};
+window.delSal=async function(sid,tid){if(!confirm('Delete?'))return;await del_('salaries',sid);toast('Deleted!','info');go('teacherDetail',{id:tid});};
+
+// ══════════════════════════════════════════════
+//  REPORTS (Director Only for Fee)
+// ══════════════════════════════════════════════
+async function pgReports(){
+  const[sts,teachers,sals]=await Promise.all([getAll('students'),getAll('teachers'),isDir()?getAll('salaries'):Promise.resolve([])]);
+  let fees=[];
+  if(isDir())fees=await getAll('fees');
+  window.__rd={sts,fees,tch:teachers,sals};
+  const cd={};sts.forEach(s=>{const k=clsL(s.class,s.customClass);if(!cd[k])cd[k]={t:0,h:0};cd[k].t++;if(s.type==='hostel')cd[k].h++;});
+  const mf={};
+  if(isDir())fees.forEach(f=>{const k=`${f.year}-${String(f.month).padStart(2,'0')}`;if(!mf[k])mf[k]={c:0,n:0};mf[k].c+=Number(f.paidAmount||0);mf[k].n++;});
+  const ts={};sals.forEach(s=>{ts[s.teacherId]=(ts[s.teacherId]||0)+Number(s.amount||0);});
+
+  return`
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap" class="no-print">
+    <button class="btn btn-outline" onclick="prtR('cw')">🖨️ Class-wise List</button>
+    ${isDir()?`<button class="btn btn-outline" onclick="prtR('fc')">🖨️ Fee Collection</button>
+    <button class="btn btn-outline" onclick="prtR('sl')">🖨️ Salary Report</button>`:''}
+    <button class="btn btn-accent" onclick="expCSV()">📊 Export Students CSV</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📚 Class-wise Count</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Class</th><th>Total</th><th>Hostel</th><th>Day Scholar</th></tr></thead>
+      <tbody>
+        ${Object.entries(cd).map(([c,d])=>`<tr><td><strong>${c}</strong></td>
+          <td><span class="badge b-blue">${d.t}</span></td><td>${d.h}</td><td>${d.t-d.h}</td></tr>`).join('')
+          ||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No data</td></tr>'}
+        <tr style="background:var(--bg);font-weight:700"><td>TOTAL</td><td>${sts.length}</td>
+          <td>${sts.filter(s=>s.type==='hostel').length}</td><td>${sts.filter(s=>s.type!=='hostel').length}</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  ${isDir()?`
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">💰 Month-wise Fee Collection (Director Only)</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Month</th><th>Students</th><th>Amount</th></tr></thead>
+      <tbody>${Object.entries(mf).sort().reverse().slice(0,24).map(([k,d])=>{
+        const[y,m]=k.split('-');return`<tr><td><strong>${MN[Number(m)-1]} ${y}</strong></td><td>${d.n}</td><td><span class="badge b-green">${cur(d.c)}</span></td></tr>`;
+      }).join('')||'<tr><td colspan="3" style="text-align:center;color:var(--muted)">No records</td></tr>'}</tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><div class="card-title">💼 Teacher Salary Summary (Director Only)</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Teacher</th><th>Designation</th><th>Joined</th><th>Total Paid</th></tr></thead>
+      <tbody>${teachers.map(t=>`<tr>
+        <td><div style="display:flex;align-items:center;gap:9px">${avH(t.name)}<strong>${t.name}</strong></div></td>
+        <td>${t.designation||'-'}</td><td>${MY(t.joinMonth,t.joinYear)}</td>
+        <td><span class="badge b-green">${cur(ts[t.id]||0)}</span></td>
+      </tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No teachers</td></tr>'}</tbody>
+    </table></div>
+  </div>`:''}`;
+}
+
+window.prtR=function(type){
+  const d=window.__rd;if(!d)return;let html='';
+  if(type==='cw'){
+    html=`<h2>All Students List</h2><table><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Class</th><th>Father</th><th>Mobile</th><th>Type</th><th>Village</th><th>City</th><th>Since</th></tr></thead>
+    <tbody>${d.sts.map((s,i)=>`<tr><td>${i+1}</td><td><b>${s.name}</b></td><td>${s.rollNumber||'-'}</td>
+    <td>${clsL(s.class,s.customClass)}</td><td>${s.fatherName||'-'}</td><td>${s.mobile||'-'}</td>
+    <td>${s.type==='hostel'?'Hostel':'Day Scholar'}</td><td>${s.village||'-'}</td><td>${s.city||'-'}</td>
+    <td>${MY(s.startMonth,s.startYear)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if(type==='fc'&&isDir()){
+    const mf2={};d.fees.forEach(f=>{const k=`${f.year}-${String(f.month).padStart(2,'0')}`;if(!mf2[k])mf2[k]={c:0,n:0};mf2[k].c+=Number(f.paidAmount||0);mf2[k].n++;});
+    html=`<h2>Fee Collection Report (Director Only)</h2><table><thead><tr><th>Month</th><th>Students</th><th>Amount</th></tr></thead>
+    <tbody>${Object.entries(mf2).sort().reverse().map(([k,v])=>{const[y,m]=k.split('-');return`<tr><td>${MN[Number(m)-1]} ${y}</td><td>${v.n}</td><td>₹${v.c.toLocaleString('en-IN')}</td></tr>`;}).join('')}</tbody></table>`;
+  }
+  if(type==='sl'&&isDir()){
+    html=`<h2>Salary Report</h2><table><thead><tr><th>#</th><th>Teacher</th><th>Month</th><th>Amount</th><th>Date</th></tr></thead>
+    <tbody>${d.sals.sort((a,b)=>a.year*100+a.month-(b.year*100+b.month)).map((s,i)=>{
+      const t=d.tch.find(x=>x.id===s.teacherId);
+      return`<tr><td>${i+1}</td><td>${t?.name||'N/A'}</td><td>${MY(s.month,s.year)}</td><td>₹${Number(s.amount).toLocaleString('en-IN')}</td><td>${s.paidDate||'-'}</td></tr>`;
+    }).join('')}</tbody></table>`;
+  }
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>${INST}</title><style>body{font-family:Arial;padding:20px}h1,h2{color:#1a237e;text-align:center}table{width:100%;border-collapse:collapse;margin:12px 0}th{background:#1a237e;color:#fff;padding:9px;text-align:left}td{padding:9px;border:1px solid #ddd}</style></head><body><h1>${INST}</h1>${html}</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+};
+
+window.expCSV=function(){
+  const d=window.__rd;if(!d)return;
+  let csv='Name,Roll No,Class,Father,Mother,Mobile,Village,City,Type,Start Month,Start Year,Monthly Fee\n';
+  d.sts.forEach(s=>{csv+=`"${s.name}","${s.rollNumber||''}","${clsL(s.class,s.customClass)}","${s.fatherName||''}","${s.motherName||''}","${s.mobile||''}","${s.village||''}","${s.city||''}","${s.type}","${MN[s.startMonth-1]}","${s.startYear}","${s.monthlyFee||''}"\n`;});
+  const b=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=INST+'_Students.csv';a.click();
+};
+
+
+// ══════════════════════════════════════════════
+//  FEE EXPORT — Due / Advance (Director Only)
+// ══════════════════════════════════════════════
+async function pgFeeExport(){
+  if(!isDir())return err_('Access Denied');
+  const now=new Date();
+  return`
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">📊 Export Due / Advance Students</div></div>
+    <div class="alert a-info" style="margin-bottom:16px">
+      इस page से Due या Advance fee वाले students का Excel export कर सकते हैं।<br>
+      Next year इसी file को import करके previous year का due/advance automatically carry forward होगा।
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-row">
+      <div class="fg"><label>Filter Type</label>
+        <select id="expType">
+          <option value="all">All (Due + Advance)</option>
+          <option value="due">⚠️ Due Only</option>
+          <option value="advance">✅ Advance Only</option>
+        </select></div>
+      <div class="fg"><label>Year</label>
+        <select id="expYear">
+          ${[0,1,2].map(i=>`<option value="${now.getFullYear()-i}">${now.getFullYear()-i}</option>`).join('')}
+          <option value="all">All Years</option>
+        </select></div>
+      <div class="fg"><label>Month (optional)</label>
+        <select id="expMonth">
+          <option value="all">All Months</option>
+          ${MN.map((m,i)=>`<option value="${i+1}" ${i===now.getMonth()?'selected':''}>${m}</option>`).join('')}
+        </select></div>
+      <div class="fg"><label>Class (optional)</label>
+        <select id="expClass">
+          <option value="all">All Classes</option>
+          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option value="${i}">Class ${i}</option>`).join('')}
+          <option value="Other">Other</option>
+        </select></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="previewFeeExport()">👁 Preview</button>
+      <button class="btn btn-accent" onclick="exportFeeExcel()">📊 Download Excel</button>
+    </div>
+  </div>
+
+  <div id="feeExportPreview"></div>
+
+  <!-- Import Carry Forward -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-hd"><div class="card-title">📥 Import & Carry Forward (Next Year)</div></div>
+    <div class="alert a-warn" style="margin-bottom:14px">
+      ⚠️ पिछले साल export की Excel file upload करें। System automatically Due/Advance carry forward करेगा।
+    </div>
+    <div class="upload-zone" id="carryZone" onclick="document.getElementById('carryInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')"
+      ondrop="handleCarryDrop(event)">
+      <div class="ui">📂</div>
+      <h3>Carry Forward Excel Drop करें</h3>
+      <p>Previous year exported file यहाँ upload करें</p>
+    </div>
+    <input type="file" id="carryInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleCarryFile(this)">
+    <div id="carryPreview" style="margin-top:16px"></div>
+  </div>`;
+}
+
+async function calcStudentFee(s,fees,filterYear,filterMonth){
+  const now=new Date(),cm=now.getMonth()+1,cy=now.getFullYear();
+  let sf=fees.filter(f=>f.studentId===s.id);
+  if(filterYear!=='all')sf=sf.filter(f=>f.year==filterYear);
+  if(filterMonth!=='all')sf=sf.filter(f=>f.month==filterMonth);
+  const tp=sf.reduce((a,f)=>a+Number(f.paidAmount||0),0);
+  const year=filterYear==='all'?cy:Number(filterYear);
+  const mc=Math.max(1,(year-s.startYear)*12+(cm-s.startMonth)+1);
+  const td=filterYear==='all'?mc*Number(s.monthlyFee||0):
+    filterMonth!=='all'?Number(s.monthlyFee||0):12*Number(s.monthlyFee||0);
+  const bal=td-tp;
+  return{due:Math.max(0,bal),advance:Math.max(0,-bal),totalPaid:tp,totalDue:td};
+}
+
+window.previewFeeExport=async function(){
+  const[students,fees]=await Promise.all([getAll('students'),getAll('fees')]);
+  const expType=document.getElementById('expType').value;
+  const expYear=document.getElementById('expYear').value;
+  const expMonth=document.getElementById('expMonth').value;
+  const expClass=document.getElementById('expClass').value;
+
+  let filtered=students;
+  if(expClass!=='all')filtered=filtered.filter(s=>String(s.class)===expClass);
+
+  const rows=[];
+  for(const s of filtered){
+    const{due,advance}=await calcStudentFee(s,fees,expYear,expMonth);
+    if(expType==='due'&&due<=0)continue;
+    if(expType==='advance'&&advance<=0)continue;
+    if(expType==='all'&&due<=0&&advance<=0)continue;
+    rows.push({...s,due,advance});
+  }
+
+  window.__feeExportRows=rows;
+  window.__feeExportMeta={expYear,expMonth,expType};
+
+  const preview=document.getElementById('feeExportPreview');
+  if(!rows.length){
+    preview.innerHTML=`<div class="card"><div class="empty"><div class="ei">✅</div><p>कोई Due/Advance नहीं मिला</p></div></div>`;
+    return;
+  }
+  preview.innerHTML=`
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Preview — ${rows.length} Students</div>
+      <button class="btn btn-sm btn-accent" onclick="exportFeeExcel()">📊 Download Excel</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Roll No</th><th>Mobile</th><th>Father</th><th>Mother</th><th>Address</th><th>Due ₹</th><th>Advance ₹</th></tr></thead>
+      <tbody>${rows.map((s,i)=>`<tr>
+        <td>${i+1}</td><td><strong>${s.name}</strong></td>
+        <td><span class="badge b-blue">${clsL(s.class,s.customClass)}</span></td>
+        <td>${s.rollNumber||'-'}</td><td>${s.mobile||'-'}</td>
+        <td>${s.fatherName||'-'}</td><td>${s.motherName||'-'}</td>
+        <td>${[s.village,s.city].filter(Boolean).join(', ')||'-'}</td>
+        <td>${s.due>0?`<span class="badge b-red">${cur(s.due)}</span>`:'-'}</td>
+        <td>${s.advance>0?`<span class="badge b-green">${cur(s.advance)}</span>`:'-'}</td>
+      </tr>`).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+};
+
+window.exportFeeExcel=function(){
+  const rows=window.__feeExportRows;
+  if(!rows||!rows.length){toast('❌ Pehle Preview karein','err');return;}
+  const meta=window.__feeExportMeta||{};
+  const mn=meta.expMonth!=='all'?MN[Number(meta.expMonth)-1]:'All';
+  const yr=meta.expYear||new Date().getFullYear();
+
+  let csv='Name,Class,Roll Number,Mobile,Father Name,Mother Name,Village,City,Monthly Fee,Start Month,Start Year,Type,Total Due,Advance Amount
+';
+  rows.forEach(s=>{
+    csv+=`"${s.name}","${clsL(s.class,s.customClass)}","${s.rollNumber||''}","${s.mobile||''}","${s.fatherName||''}","${s.motherName||''}","${s.village||''}","${s.city||''}","${s.monthlyFee||0}","${MN[(s.startMonth||1)-1]}","${s.startYear||''}","${s.type}","${s.due||0}","${s.advance||0}"
+`;
+  });
+
+  function dlCSV(csv,fname){
+    const b=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname;a.click();
+  }
+  dlCSV(csv,`${INST}_FeeReport_${mn}_${yr}.csv`);
+  toast('✅ Excel download ho rahi hai!');
+};
+
+// Carry Forward Import
+window.handleCarryDrop=function(e){
+  e.preventDefault();document.getElementById('carryZone').classList.remove('drag');
+  const file=e.dataTransfer.files[0];if(file)processCarryFile(file);
+};
+window.handleCarryFile=function(inp){const file=inp.files[0];if(file)processCarryFile(file);};
+
+async function processCarryFile(file){
+  const zone=document.getElementById('carryZone');
+  zone.innerHTML=`<div class="ui spin">⏳</div><h3>Processing...</h3>`;
+  try{
+    let rows=[];
+    if(file.name.endsWith('.csv')){
+      const text=await file.text();
+      rows=text.split(/
+?\n/).filter(l=>l.trim()).map(l=>{
+        const cells=[];let cur='',inQ=false;
+        for(const ch of l){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){cells.push(cur.trim());cur='';}else cur+=ch;}
+        cells.push(cur.trim());return cells;
+      });
+    }else{
+      rows=await parseExcel(file);
+    }
+    if(rows.length<2){zone.innerHTML=`<div class="ui">❌</div><h3>No data found</h3>`;return;}
+
+    const headers=rows[0].map(h=>String(h).toLowerCase().trim());
+    const idx={};
+    const needed={name:['name'],roll:['roll number','roll no','roll'],cls:['class'],due:['total due','due'],adv:['advance','advance amount']};
+    Object.entries(needed).forEach(([k,variants])=>{
+      const i=headers.findIndex(h=>variants.some(v=>h.includes(v)));
+      if(i>=0)idx[k]=i;
+    });
+
+    const preview=[];
+    for(let i=1;i<rows.length;i++){
+      const row=rows[i];if(!row.some(c=>c))continue;
+      const name=String(row[idx.name]||'').trim();
+      const roll=String(row[idx.roll]||'').trim();
+      const due=Number(String(row[idx.due]||'0').replace(/[^0-9.]/g,''))||0;
+      const adv=Number(String(row[idx.adv]||'0').replace(/[^0-9.]/g,''))||0;
+      if(name||(due>0||adv>0))preview.push({name,roll,due,adv,row:i+1});
+    }
+
+    window.__carryData=preview;
+    zone.innerHTML=`<div class="ui">✅</div><h3>${preview.length} records found</h3><p>Click Apply to carry forward</p>`;
+
+    const pr=document.getElementById('carryPreview');
+    pr.innerHTML=`
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Carry Forward Preview</div>
+        <button class="btn btn-primary" onclick="applyCarryForward()">✅ Apply Carry Forward</button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>#</th><th>Name</th><th>Roll</th><th>Previous Due</th><th>Previous Advance</th></tr></thead>
+        <tbody>${preview.map((r,i)=>`<tr>
+          <td>${i+1}</td><td>${r.name}</td><td>${r.roll||'-'}</td>
+          <td>${r.due>0?`<span class="badge b-red">${cur(r.due)}</span>`:'-'}</td>
+          <td>${r.adv>0?`<span class="badge b-green">${cur(r.adv)}</span>`:'-'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+  }catch(e){zone.innerHTML=`<div class="ui">❌</div><h3>Error: ${e.message}</h3>`;}
+}
+
+window.applyCarryForward=async function(){
+  const data=window.__carryData;if(!data?.length){return;}
+  if(!confirm(`${data.length} students ka data carry forward karein? Ye fees add ho jayengi.`))return;
+
+  const students=await getAll('students');
+  const now=new Date();let done=0,notFound=0;
+
+  for(const r of data){
+    // Find student by name or roll number
+    let stu=students.find(s=>s.rollNumber&&s.rollNumber===r.roll);
+    if(!stu)stu=students.find(s=>s.name.toLowerCase()===r.name.toLowerCase());
+    if(!stu){notFound++;continue;}
+
+    // Add carry forward fee entry for current year Jan
+    if(r.due>0){
+      await save_('fees',uid_(),{
+        studentId:stu.id,month:1,year:now.getFullYear(),
+        dueAmount:r.due,paidAmount:0,
+        payMode:'CarryForward',remarks:`Previous Year Due Carry Forward`,
+        isCarryForward:true
+      });
+    }
+    if(r.adv>0){
+      // Record advance credit
+      await save_('fees',uid_(),{
+        studentId:stu.id,month:1,year:now.getFullYear(),
+        dueAmount:0,paidAmount:r.adv,
+        payMode:'CarryForward',remarks:`Previous Year Advance Carry Forward`,
+        isCarryForward:true
+      });
+    }
+    done++;
+  }
+  clearCache('fees');
+  toast(`✅ ${done} students carry forward! ${notFound} not found.`);
+  go('feeExport');
+};
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+async function pgSettings(){
+  if(!isDir())return err_('Access Denied');
+  const[settings,allUsers]=await Promise.all([getOne('settings','main'),getAll('users')]);
+  const teachers=allUsers.filter(u=>u.role==='teacher');
+  const operators=allUsers.filter(u=>u.role==='operator');
+  const opPerms=settings?.operatorDeletePerms||[];
+  return`
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title" style="margin-bottom:18px">🏫 Institute Name</div>
+    <div class="fg" style="max-width:420px"><label>School Name</label>
+      <input id="stName" value="${settings?.institute_name||INST}" placeholder="e.g. Wasi Teaching Center"></div>
+    <button class="btn btn-primary btn-sm" onclick="saveInst()">💾 Save</button>
+    <span id="instMsg" style="margin-left:12px"></span>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title" style="margin-bottom:18px">🔑 Change My Password</div>
+    <div class="fgrid" style="max-width:500px">
+      <div class="fg"><label>New Password</label><input type="password" id="np" placeholder="Min 6 characters"></div>
+      <div class="fg"><label>Confirm</label><input type="password" id="cp" placeholder="Repeat"></div>
+    </div>
+    <div id="pMsg" class="alert" style="display:none;max-width:460px;margin-bottom:12px"></div>
+    <button class="btn btn-primary btn-sm" onclick="chgPass()">🔒 Update Password</button>
+  </div>
+
+  <!-- Teacher Accounts -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-title">👩‍🏫 Teacher Accounts</div></div>
+    <div class="alert a-info" style="margin-bottom:12px">Default password: <strong>teacher@123</strong></div>
+    <div class="tw"><table>
+      <thead><tr><th>Name</th><th>Login Email</th></tr></thead>
+      <tbody>${teachers.map(u=>`<tr><td><strong>${u.name}</strong></td><td>${u.email||'-'}</td></tr>`).join('')
+        ||'<tr><td colspan="2" style="text-align:center;color:var(--muted)">No teacher accounts</td></tr>'}</tbody>
+    </table></div>
+  </div>
+
+  <!-- Operator Accounts -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd">
+      <div class="card-title">📝 Data Entry Operators</div>
+      <button class="btn btn-sm btn-primary" onclick="addOperatorModal()">➕ Add Operator</button>
+    </div>
+    <div class="alert a-info" style="margin-bottom:12px">
+      Operator can: Add students, Edit student data, Add/Edit competition results.<br>
+      Operator CANNOT: See fees, Delete students (unless permitted below).
+    </div>
+    ${!operators.length?`<p style="color:var(--muted)">No operators yet.</p>`:
+    `<div class="tw"><table>
+      <thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+      <tbody>${operators.map(u=>`<tr>
+        <td><strong>${u.name}</strong></td><td>${u.email||'-'}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')">🗑 Remove</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+  </div>
+
+  <!-- Operator Delete Permissions -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">🔐 Operator Delete Permissions</div>
+    </div>
+    <div class="alert a-warn" style="margin-bottom:14px">
+      यहाँ आप Operator को specific class या roll number range के students delete करने की permission दे सकते हैं।
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="flex:1;min-width:200px">
+        <div class="fg" style="margin-bottom:8px"><label>By Class</label>
+          <select id="permClass">
+            <option value="">-- Select Class --</option>
+            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`<option value="Class ${i}">Class ${i}</option>`).join('')}
+            <option value="Other">Other</option>
+          </select></div>
+        <button class="btn btn-sm btn-primary" onclick="addPermClass()">➕ Allow This Class</button>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div class="fg" style="margin-bottom:4px"><label>By Roll Number Range</label>
+          <div style="display:flex;gap:6px">
+            <input type="number" id="permRollFrom" placeholder="From Roll" style="padding:8px;border:2px solid var(--border);border-radius:8px;font-size:13px;flex:1">
+            <input type="number" id="permRollTo" placeholder="To Roll" style="padding:8px;border:2px solid var(--border);border-radius:8px;font-size:13px;flex:1">
+          </div></div>
+        <button class="btn btn-sm btn-primary" onclick="addPermRoll()">➕ Allow This Range</button>
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <strong style="font-size:13px">Current Permissions:</strong>
+      <div id="permTags" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+        ${opPerms.map((p,i)=>`<span class="perm-tag">
+          ${p.type==='class'?'📚 '+p.value:`🔢 Roll ${p.from}–${p.to}`}
+          <span class="rm" onclick="removePerm(${i})">✕</span>
+        </span>`).join('')||'<span style="color:var(--muted);font-size:13px">No permissions set</span>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+window.addOperatorModal=function(){
+  openModal('➕ Add Data Entry Operator',`
+  <div class="fgrid">
+    <div class="fg fw"><label>Full Name ★</label><input id="opn" placeholder="Operator's name"></div>
+    <div class="fg"><label>Email ★</label><input type="email" id="ope" placeholder="operator@email.com"></div>
+    <div class="fg"><label>Password ★</label><input type="password" id="opp" value="operator@123" placeholder="Min 6 chars"></div>
+  </div>
+  <div id="opErr" class="alert a-danger" style="display:none"></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveOperator()">💾 Add Operator</button>
+  </div>`);
+};
+
+window.saveOperator=async function(){
+  const name=document.getElementById('opn').value.trim();
+  const email=document.getElementById('ope').value.trim();
+  const pass=document.getElementById('opp').value;
+  const er=document.getElementById('opErr');
+  if(!name||!email||!pass){er.style.display='block';er.textContent='❌ All fields required!';return;}
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    await save_('users',cred.user.uid,{name,email,role:'operator'});
+    closeModal();toast('✅ Operator added! Email: '+email+' | Pass: '+pass);go('settings');
+  }catch(e){er.style.display='block';er.textContent='❌ '+e.message;}
+};
+
+window.deleteUser=async function(uid){
+  if(!confirm('Remove this user account?'))return;
+  await del_('users',uid);toast('Removed!','info');go('settings');
+};
+
+// Permission management
+async function loadOpPerms(){
+  const st=await getOne('settings','main');return st?.operatorDeletePerms||[];
+}
+window.addPermClass=async function(){
+  const cls=document.getElementById('permClass').value;
+  if(!cls){alert('Class select karein');return;}
+  const perms=await loadOpPerms();
+  if(perms.some(p=>p.type==='class'&&p.value===cls)){alert('Already added!');return;}
+  perms.push({type:'class',value:cls});
+  await save_('settings','main',{operatorDeletePerms:perms});
+  window.__opPerms=perms;toast('✅ Permission added!');go('settings');
+};
+window.addPermRoll=async function(){
+  const from=Number(document.getElementById('permRollFrom').value);
+  const to=Number(document.getElementById('permRollTo').value);
+  if(!from||!to||from>to){alert('Valid roll number range daalein');return;}
+  const perms=await loadOpPerms();
+  perms.push({type:'rollRange',from,to});
+  await save_('settings','main',{operatorDeletePerms:perms});
+  window.__opPerms=perms;toast('✅ Permission added!');go('settings');
+};
+window.removePerm=async function(idx){
+  const perms=await loadOpPerms();
+  perms.splice(idx,1);
+  await save_('settings','main',{operatorDeletePerms:perms});
+  window.__opPerms=perms;toast('Permission removed!','info');go('settings');
+};
+window.saveInst=async function(){
+  const n=document.getElementById('stName').value.trim();if(!n){alert('Name daalein');return;}
+  await save_('settings','main',{institute_name:n});INST=n;
+  sessionStorage.setItem('inst',n);
+  document.getElementById('sbName').textContent='🏫 '+n;
+  document.getElementById('loginName').textContent=n;
+  document.getElementById('instMsg').innerHTML='<span class="badge b-green">✅ Saved!</span>';
+  setTimeout(()=>{const el=document.getElementById('instMsg');if(el)el.innerHTML='';},3000);
+};
+window.chgPass=async function(){
+  const np=document.getElementById('np').value,cp=document.getElementById('cp').value;
+  const msg=document.getElementById('pMsg');
+  if(!np||np.length<6){msg.className='alert a-danger';msg.style.display='block';msg.textContent='❌ Min 6 characters!';return;}
+  if(np!==cp){msg.className='alert a-danger';msg.style.display='block';msg.textContent='❌ Passwords match nahi!';return;}
+  try{await updatePassword(auth.currentUser,np);msg.className='alert a-success';msg.style.display='block';msg.textContent='✅ Password updated!';}
+  catch(e){msg.className='alert a-danger';msg.style.display='block';msg.textContent='❌ '+e.message;}
+};
+</script>
+</body>
+</html>
